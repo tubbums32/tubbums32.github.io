@@ -8,64 +8,63 @@ body{
     color: white;
     font-size: 150%;
     text-align:center;  
-    cursor: pointer; 
+    cursor: pointer;
+    text-decoration: none
 }
 
 .term{   
-    border: solid 2.5px white;
+    border: solid 0px white;
+    background-color: rgb(16, 20, 26);
     border-radius: 10px;
     margin:auto;
+    margin-top:-1em;
     text-align:center;
-    width:65%;
+    width:60%;
     font-family: 'Andika', sans-serif;
-    font-size: 200%;
+    font-size: 500%;
     color: white;
 }
 
 .pinyin{   
-    border: solid 2.5px white;
+    border: solid 0px white;
     border-radius: 10px;
     text-align:center;
-    font-size: 100%;
-    margin: auto;
-    width:65%;
-    font-family: 'Andika', sans-serif;
-    visibility:hidden;
+    font-size: 200%;
+    margin-top:-2.5em;
+    width:100%;
+    font-family: 'Arial', sans-serif;
     color:white;
 }
 
 .english{   
-    border: solid 2.5px white;
+    border: solid 0px white;
     border-radius: 10px;
     text-align:center;
-    font-size: 70%;
-    margin: auto;
-    width:65%;
+    font-size: 100%;
+    margin-top:-1.75em;
+    margin-bottom: 0%;
+    width:100%;
     font-family: 'Andika', sans-serif;
-    visibility:hidden;
     color:white;
 }
 
 
 .pinyinButton{
     text-align: center;
-    margin-top: 10px;
+    margin-top: -0.05em;
     position: static;
-    bottom:10%;
 }
 
 .definitionButton{
     text-align: center;
-    margin-top: 10px;
+    margin-top: -0.05em;
     position: static;
-    bottom:10%;
 }
 
 .nextButton{
     text-align: center;
-    margin-top: 10px;
+    margin-top: -0.05em;
     position: static;
-    bottom:10%;
 } 
 
 .pauseButton{
@@ -92,7 +91,7 @@ button:hover{
 .autoprogressButton{
     position:absolute;
     width: 40%;
-    margin-left: 14.5%;
+    margin-left: 14.8%;
     text-align: center;
     bottom:5%;
 } 
