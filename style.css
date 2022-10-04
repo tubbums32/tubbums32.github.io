@@ -7,61 +7,81 @@ body{
     font-family: 'Zapfino', sans-serif;
     color: white;
     font-size: 150%;
-    text-align:center   
+    text-align:center;  
+    cursor: pointer; 
 }
 
 .term{   
-    border: solid 0px white;
-    background-color: rgb(16, 20, 26);
+    border: solid 2.5px white;
     border-radius: 10px;
     margin:auto;
     text-align:center;
-    width:60%;
+    width:65%;
     font-family: 'Andika', sans-serif;
-    font-size: 500%;
+    font-size: 200%;
     color: white;
 }
 
 .pinyin{   
-    border: solid 0px white;
+    border: solid 2.5px white;
     border-radius: 10px;
     text-align:center;
-    font-size: 200%;
-    margin-top:-2.5em;
-    width:100%;
-    font-family: 'Arial', sans-serif;
+    font-size: 100%;
+    margin: auto;
+    width:65%;
+    font-family: 'Andika', sans-serif;
+    visibility:hidden;
     color:white;
 }
 
 .english{   
-    border: solid 0px white;
+    border: solid 2.5px white;
     border-radius: 10px;
     text-align:center;
-    font-size: 100%;
-    margin-top:-1.75em;
-    margin-bottom: 0%;
-    width:100%;
+    font-size: 70%;
+    margin: auto;
+    width:65%;
     font-family: 'Andika', sans-serif;
+    visibility:hidden;
     color:white;
 }
 
 
 .pinyinButton{
     text-align: center;
-    margin-top: -0.05em;
+    margin-top: 10px;
     position: static;
+    bottom:10%;
 }
 
 .definitionButton{
     text-align: center;
-    margin-top: -0.05em;
+    margin-top: 10px;
     position: static;
+    bottom:10%;
 }
 
 .nextButton{
     text-align: center;
-    margin-top: -0.05em;
+    margin-top: 10px;
     position: static;
+    bottom:10%;
+} 
+
+.pauseButton{
+    position:absolute;
+    width: 40%;
+    margin-left: 27.5%;
+    text-align: center;
+    bottom:14%;
+} 
+
+.resumeButton{
+    position:absolute;
+    width: 40%;
+    margin-left: 27.5%;
+    text-align: center;
+    bottom:14%;
 } 
 
 button:hover{
@@ -69,3 +89,56 @@ button:hover{
     transition: 0.2s;
 }
 
+.autoprogressButton{
+    position:absolute;
+    width: 40%;
+    margin-left: 14.5%;
+    text-align: center;
+    bottom:5%;
+} 
+
+.rate{   
+    position:absolute;
+    bottom:3.7em;
+    margin:auto;
+    text-align:center;
+    width:97%;
+    font-family: 'Andika', sans-serif;
+    font-size: 100%;
+    color: white;
+    visibility:hidden
+}
+
+.slider{
+    position:absolute;
+    bottom:2em;
+    -webkit-appearance: none;
+    width: 80%;
+    left: 9%;
+    height: 15px;
+    border-radius: 5px;  
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    cursor: pointer;
+  }
+  
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%; 
+    background: #04AA6D;
+    cursor: pointer;
+  }
+  
+  .slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #04AA6D;
+    cursor: pointer;
+  }
