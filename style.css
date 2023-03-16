@@ -12,21 +12,26 @@ body{
     text-decoration: none
 }
 
+.dropdown{
+    text-align:center;
+    margin-top:-1em;
+    opacity: 0.8;
+}
+
 .term{   
-    border: solid 0px white;
-    background-color: rgb(16, 20, 26);
+    background-color: rgba(16, 20, 26, 0.844);
     border-radius: 10px;
     margin:auto;
     margin-top:-1em;
     text-align:center;
-    width:60%;
+    width:80%;
     font-family: 'Andika', sans-serif;
     font-size: 500%;
     color: white;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
 }
 
 .pinyin{   
-    border: solid 0px white;
     border-radius: 10px;
     text-align:center;
     font-size: 200%;
@@ -38,7 +43,6 @@ body{
 
 .english{   
     border: solid 0px white;
-    border-radius: 10px;
     text-align:center;
     font-size: 100%;
     margin-top:-1.75em;
@@ -47,7 +51,6 @@ body{
     font-family: 'Andika', sans-serif;
     color:white;
 }
-
 
 .pinyinButton{
     text-align: center;
@@ -67,77 +70,8 @@ body{
     position: static;
 } 
 
-.pauseButton{
-    position:absolute;
-    width: 40%;
-    margin-left: 27.5%;
-    text-align: center;
-    bottom:14%;
-} 
-
-.resumeButton{
-    position:absolute;
-    width: 40%;
-    margin-left: 27.5%;
-    text-align: center;
-    bottom:14%;
-} 
-
 button:hover{
     transform: scale(1.1);
     transition: 0.2s;
 }
 
-.autoprogressButton{
-    position:absolute;
-    width: 40%;
-    margin-left: 14.8%;
-    text-align: center;
-    bottom:5%;
-} 
-
-.rate{   
-    position:absolute;
-    bottom:3.7em;
-    margin:auto;
-    text-align:center;
-    width:97%;
-    font-family: 'Andika', sans-serif;
-    font-size: 100%;
-    color: white;
-    visibility:hidden
-}
-
-.slider{
-    position:absolute;
-    bottom:2em;
-    -webkit-appearance: none;
-    width: 80%;
-    left: 9%;
-    height: 15px;
-    border-radius: 5px;  
-    background: #d3d3d3;
-    outline: none;
-    opacity: 0.7;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
-    cursor: pointer;
-  }
-  
-  .slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 25px;
-    height: 25px;
-    border-radius: 50%; 
-    background: #04AA6D;
-    cursor: pointer;
-  }
-  
-  .slider::-moz-range-thumb {
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    background: #04AA6D;
-    cursor: pointer;
-  }

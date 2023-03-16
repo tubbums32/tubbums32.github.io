@@ -11,6 +11,19 @@
     <body onload="getRandomWord()">
         <h1 class="Title">Vocabulary Review</h1>
  
+        <div class="dropdown">
+            <select name="vocab" onChange="getVocab()">
+                <option value="HSK1">HSK1</option>
+                <option value="HSK2">HSK2</option>
+                <option value="HSK3">HSK3</option>
+                <option value="HSK4">HSK4</option>
+                <option value="HSK5">HSK5</option>
+                <option value="HSK6">HSK6</option>
+                <option value="HSK789">HSK7-9</option>
+                <option value="Custom" selected>Custom</option>
+            </select>
+        </div>
+
         <div>
             <h3 class="term">Term</h3>
         </div>
@@ -23,7 +36,6 @@
             <h3 class="english">Definition</h3>
         </div>
 
-
 <div class="pinyinButton">
     <button class="pinyinbutton">Show pinyin</button>
 </div>
@@ -34,28 +46,6 @@
 
 <div class="nextButton">
     <button class="nextButton">Next word</button>
-</div>
-
-<div class="pauseButton">
-    <button class="nextButton">Pause ⏸</button>
-</div>
-
-<div class="resumeButton">
-    <button class="nextButton">Resume ▶️</button>
-</div>
-
-
-
-<div class="slidecontainer">
-    <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
-</div>
-
-<div>
-    <h3 class="rate">Auto-progress rate: </h3>
-</div>
-
-<div class="autoprogressButton">
-    <button class="autoprogressButton">Auto-progress</button>
 </div>
 
 
