@@ -8,7 +8,6 @@ body{
     color: white;
     font-size: 150%;
     text-align:center;  
-    cursor: pointer;
     text-decoration: none
 }
 
@@ -75,3 +74,41 @@ button:hover{
     transition: 0.2s;
 }
 
+.autoProgressContainer {
+    text-align: center;
+    position: absolute;
+    width: 80%;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.autoProgressButton {
+    margin-bottom: 0.5em;
+    display: block;
+    margin: 0 auto;
+}
+
+.slider {
+    width: 80%;
+    margin: auto;
+    direction: rtl;
+    position: relative;
+    display: block;
+}
+
+.slider::-webkit-slider-runnable-track {
+    background-color: rgb(255, 255, 255);
+    height: 4px;
+    width: 80%;
+    position: absolute;
+    top: 18px;
+    left: 10%;
+    transform: translateY(-50%);
+}
+
+.slider::-webkit-slider-thumb {
+    position: relative;
+    z-index: 1;
+    top: -5px;
+}
