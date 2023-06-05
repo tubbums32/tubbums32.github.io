@@ -1,7 +1,11 @@
+@font-face {
+    font-family: 'Zapfino';
+    src: url('fonts/Zapfino.ttf') format('truetype');
+  }
+
 body{
     background-color:rgb(32, 60, 61);
 }
-
 
 .Title{
     font-family: 'Zapfino', sans-serif;
@@ -11,23 +15,33 @@ body{
     text-decoration: none
 }
 
-.dropdown{
-    text-align:center;
-    margin-top:-1em;
-    opacity: 0.8;
-}
+.dropdown-container {
+    position: fixed;
+    top:10px;
+    z-index: 1;
+  }
+  
+  .dropdown {
+    position: fixed;
+    top: 95px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    text-align: center;
+  }
 
 .term{   
     background-color: rgba(16, 20, 26, 0.844);
     border-radius: 10px;
     margin:auto;
-    margin-top:-1em;
+    margin-top:-0.8em;
     text-align:center;
     width:80%;
     font-family: 'Andika', sans-serif;
     font-size: 500%;
     color: white;
     box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+    z-index: -1;
 }
 
 .pinyin{   
@@ -38,6 +52,7 @@ body{
     width:100%;
     font-family: 'Arial', sans-serif;
     color:white;
+    z-index: -1;
 }
 
 .english{   
@@ -46,33 +61,46 @@ body{
     font-size: 100%;
     margin-top:-1.75em;
     margin-bottom: 0%;
-    width:100%;
+    width:90%;
+    transform: translateX(5%);    
     font-family: 'Andika', sans-serif;
     color:white;
+    z-index: -1;
 }
 
-.pinyinButton{
-    text-align: center;
-    margin-top: -0.05em;
-    position: static;
-}
+.button-container {
+    position: fixed;
+    text-align:center;
+    margin-top:-28em;
+    width: 100%;
+    z-index: 0;
+    bottom:0px
+  }
+  
+  .pinyinbutton {
+    position: fixed;
+    top:0px;
+    height: 100vh;
+    width: 100vw;
+    color: rgba(255, 255, 255, 0.485);
+    background-color: transparent;
+    border: none;
+    z-index: 1;
+    transform: translateX(-1.5%);
+  }
 
-.definitionButton{
-    text-align: center;
-    margin-top: -0.05em;
-    position: static;
-}
-
-.nextButton{
-    text-align: center;
-    margin-top: -0.05em;
-    position: static;
-} 
-
-button:hover{
-    transform: scale(1.1);
-    transition: 0.2s;
-}
+  .definitionButton,
+  .nextButton {
+    position: fixed;
+    top:-270px;
+    height: 1500px;
+    width: 100vw;
+    color: rgba(255, 255, 255, 0.485);
+    background-color: transparent;
+    border: none;
+    z-index: 1;
+    transform: translateX(-1.5%);
+  }
 
 .autoProgressContainer {
     text-align: center;
@@ -81,12 +109,14 @@ button:hover{
     bottom: 10%;
     left: 50%;
     transform: translateX(-50%);
+    z-index: 1;
 }
 
 .autoProgressButton {
     margin-bottom: 0.5em;
     display: block;
     margin: 0 auto;
+    z-index: 1;
 }
 
 .slider {
