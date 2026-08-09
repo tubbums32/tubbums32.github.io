@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Workout Log – Mobile</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5V4.5A2.5 2.5 0 0 1 6.5 2z'%3E%3C/path%3E%3Cline x1='16' y1='6' x2='18' y2='6'%3E%3C/line%3E%3Cline x1='16' y1='10' x2='18' y2='10'%3E%3C/line%3E%3Cline x1='16' y1='14' x2='18' y2='14'%3E%3C/line%3E%3C/svg%3E">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+        :root {
+            --bg: #0a0a0a;
+            --card: #1a1a1a;
+            --text: #e0e0e0;
+            --muted: #888;
+            --accent: #3b82f6;
+            --border: #333;
+            --success: #22c55e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 16px;
+            padding-bottom: 100px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 12px;
+        }
+
+        h1 {
+            font-size: 1.35rem;
+            font-weight: 600;
+        }
+
+        .date-badge {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 0.9rem;
+            color: var(--accent);
+            white-space: nowrap;
+        }
+
+        .section {
+            margin-bottom: 28px;
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stretch-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .stretch-row input {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--accent);
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            color: #ccc;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .field-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            background: #222;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px 12px;
+            border-radius: 8px;
+            font-size: 16px; /* prevents iOS zoom */
+            width: 100%;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .unit-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .unit-toggle button {
+            background: #222;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .unit-toggle button.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .export-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);  
+            max-width: 448px;
+            background: #111;
+            border-top: 1px solid var(--border);
+            padding: 14px 16px;
+            display: flex;
+            gap: 10px;
+            z-index: 50;
+            padding-bottom: max(14px, env(safe-area-inset-bottom));
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:active {
+            opacity: 0.85;
+        }
+
+        .btn-secondary {
+            background: #222;
+            color: var(--text);
+            border: 1px solid var(--border);
+            flex: 0 0 auto;
+            padding: 14px 18px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-150%);
+            background: var(--success);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .hint {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 480px) {
+            body { max-width: 480px; margin: 0 auto; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Workout Log</h1>
+        <div class="date-badge" id="dateDisplay">—</div>
+    </header>
+
+    <div class="unit-toggle" style="margin-bottom: 16px;">
+        Units:
+        <button type="button" id="unitKg" class="active">kg</button>
+        <button type="button" id="unitLbs">lbs</button>
+    </div>
+
+    <div class="section">
+        <div class="section-title">💪 Exercises</div>
+
+        <label class="stretch-row">
+            <input type="checkbox" id="stretches_pre">
+            Stretches (pre)
+        </label>
+
+        <div class="card">
+            <div class="card-title">Shoulder Flies</div>
+            <div class="field-row">
+                <div class="field-group">
+                    <label>Weight (<span class="unit-label">kg</span>)</label>
+                    <input type="text" inputmode="decimal" id="shoulders_weight" placeholder="e.g. 45">
+                </div>
+                <div class="field-group">
+                    <label>Reps</label>
+                    <input type="text" inputmode="numeric" id="shoulders_reps" placeholder="e.g. 12">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Military Press</div>
+            <div class="field-row">
+                <div class="field-group">
+                    <label>Weight (<span class="unit-label">kg</span>)</label>
+                    <input type="text" inputmode="decimal" id="military_press_weight" placeholder="e.g. 50">
+                </div>
+                <div class="field-group">
+                    <label>Reps</label>
+                    <input type="text" inputmode="numeric" id="military_press_reps" placeholder="e.g. 10">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Bicep Curls</div>
+            <div class="field-row">
+                <div class="field-group">
+                    <label>Weight (<span class="unit-label">kg</span>)</label>
+                    <input type="text" inputmode="decimal" id="curls_weight" placeholder="e.g. 30">
+                </div>
+                <div class="field-group">
+                    <label>Reps</label>
+                    <input type="text" inputmode="numeric" id="curls_reps" placeholder="e.g. 15">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Tricep Curls</div>
+            <div class="field-row">
+                <div class="field-group">
+                    <label>Weight (<span class="unit-label">kg</span>)</label>
+                    <input type="text" inputmode="decimal" id="tricep_curls_weight" placeholder="e.g. 25">
+                </div>
+                <div class="field-group">
+                    <label>Reps</label>
+                    <input type="text" inputmode="numeric" id="tricep_curls_reps" placeholder="e.g. 15">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Chest Flies</div>
+            <div class="field-row">
+                <div class="field-group">
+                    <label>Weight (<span class="unit-label">kg</span>)</label>
+                    <input type="text" inputmode="decimal" id="chest_flies_weight" placeholder="e.g. 40">
+                </div>
+                <div class="field-group">
+                    <label>Reps</label>
+                    <input type="text" inputmode="numeric" id="chest_flies_reps" placeholder="e.g. 12">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Chest Presses</div>
+            <div class="field-row">
+                <div class="field-group">
+                    <label>Weight (<span class="unit-label">kg</span>)</label>
+                    <input type="text" inputmode="decimal" id="chest_presses_weight" placeholder="e.g. 60">
+                </div>
+                <div class="field-group">
+                    <label>Reps</label>
+                    <input type="text" inputmode="numeric" id="chest_presses_reps" placeholder="e.g. 10">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Pushups</div>
+            <div class="field-row">
+                <div class="field-group">
+                    <label>Standard</label>
+                    <input type="text" inputmode="numeric" id="pushups_standard_reps" placeholder="e.g. 20">
+                </div>
+                <div class="field-group">
+                    <label>Tricep</label>
+                    <input type="text" inputmode="numeric" id="pushups_tricep_reps" placeholder="e.g. 15">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Abs / Core</div>
+        <div class="grid-2">
+            <div class="field-group">
+                <label>Crunches</label>
+                <input type="text" inputmode="numeric" id="crunches_reps" placeholder="e.g. 30">
+            </div>
+            <div class="field-group">
+                <label>Crossing Crunches</label>
+                <input type="text" inputmode="numeric" id="crossing_crunches_reps" placeholder="e.g. 25">
+            </div>
+            <div class="field-group">
+                <label>Obl. Crunches</label>
+                <input type="text" inputmode="numeric" id="oblique_crunches_reps" placeholder="e.g. 20">
+            </div>
+            <div class="field-group">
+                <label>Leg Lifts</label>
+                <input type="text" inputmode="numeric" id="leg_lifts_reps" placeholder="e.g. 20">
+            </div>
+            <div class="field-group">
+                <label>Scissor Kicks</label>
+                <input type="text" inputmode="numeric" id="scissor_kicks_reps" placeholder="e.g. 20">
+            </div>
+            <div class="field-group">
+                <label>Jack Knives</label>
+                <input type="text" inputmode="numeric" id="jack_knives_reps" placeholder="e.g. 15">
+            </div>
+            <div class="field-group">
+                <label>Bicycle Twists</label>
+                <input type="text" inputmode="numeric" id="bicycle_twists_reps" placeholder="e.g. 25">
+            </div>
+            <div class="field-group">
+                <label>Plank (e.g. 3:00)</label>
+                <input type="text" id="plank_time" placeholder="e.g. 3:00">
+            </div>
+            <div class="field-group">
+                <label>Inverted Plank</label>
+                <input type="text" id="inverted_plank_time" placeholder="e.g. 1:45">
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Cardio & Body</div>
+        <div class="grid-2">
+            <div class="field-group">
+                <label>Elliptical / Bike (min)</label>
+                <input type="text" inputmode="decimal" id="elliptical_bike_time" placeholder="e.g. 45">
+            </div>
+            <div class="field-group">
+                <label>Body Weight (<span class="unit-label">kg</span>)</label>
+                <input type="text" inputmode="decimal" id="body_weight" placeholder="e.g. 85">
+            </div>
+        </div>
+
+        <label class="stretch-row" style="margin-top: 12px;">
+            <input type="checkbox" id="stretches_post">
+            Stretches (post)
+        </label>
+    </div>
+
+    <p class="hint">
+        Fill in what you did, then tap <strong>Copy JSON</strong>. Paste the result into a message/email or import it later on the main Daily Journal site. Weights are stored in kg (converted if you use lbs).
+    </p>
+
+    <div class="export-bar">
+        <button type="button" class="btn btn-secondary" id="clearBtn">Clear</button>
+        <button type="button" class="btn btn-primary" id="exportBtn">Copy JSON</button>
+    </div>
+
+    <div class="toast" id="toast">Copied to clipboard</div>
+
+    <script>
+        const KG_TO_LBS = 2.20462;
+        const LBS_TO_KG = 1 / KG_TO_LBS;
+
+        let useLbs = false;
+
+        const WEIGHT_FIELDS = [
+            'shoulders_weight', 'military_press_weight', 'curls_weight',
+            'tricep_curls_weight', 'chest_flies_weight', 'chest_presses_weight',
+            'body_weight'
+        ];
+
+        const ALL_FIELDS = [
+            'stretches_pre',
+            'shoulders_weight', 'shoulders_reps',
+            'military_press_weight', 'military_press_reps',
+            'curls_weight', 'curls_reps',
+            'tricep_curls_weight', 'tricep_curls_reps',
+            'chest_flies_weight', 'chest_flies_reps',
+            'chest_presses_weight', 'chest_presses_reps',
+            'pushups_standard_reps', 'pushups_tricep_reps',
+            'crunches_reps', 'crossing_crunches_reps', 'oblique_crunches_reps',
+            'leg_lifts_reps', 'scissor_kicks_reps', 'jack_knives_reps',
+            'bicycle_twists_reps', 'plank_time', 'inverted_plank_time',
+            'elliptical_bike_time', 'body_weight',
+            'stretches_post'
+        ];
+
+        function formatDateKey(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function formatDisplayDate(date) {
+            return date.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function toStorageWeight(displayVal) {
+            if (displayVal === undefined || displayVal === null || displayVal === '') return undefined;
+            const num = parseFloat(displayVal);
+            if (isNaN(num)) return undefined;
+            if (useLbs) return Math.round(num * LBS_TO_KG * 100) / 100;
+            return num;
+        }
+
+        function collectEntry() {
+            const entry = {};
+            for (const key of ALL_FIELDS) {
+                const el = document.getElementById(key);
+                if (!el) continue;
+
+                if (el.type === 'checkbox') {
+                    if (el.checked) entry[key] = true;
+                    continue;
+                }
+
+                let val = el.value.trim();
+                if (val === '') continue;
+
+                if (WEIGHT_FIELDS.includes(key)) {
+                    const kg = toStorageWeight(val);
+                    if (kg !== undefined) entry[key] = kg;
+                } else if (['plank_time', 'inverted_plank_time'].includes(key)) {
+                    entry[key] = val;
+                } else {
+                    const num = parseFloat(val);
+                    if (!isNaN(num)) entry[key] = num;
+                    else entry[key] = val;
+                }
+            }
+            return entry;
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2200);
+        }
+
+        function updateUnitLabels() {
+            document.querySelectorAll('.unit-label').forEach(el => {
+                el.textContent = useLbs ? 'lbs' : 'kg';
+            });
+            document.getElementById('unitKg').classList.toggle('active', !useLbs);
+            document.getElementById('unitLbs').classList.toggle('active', useLbs);
+        }
+
+        document.getElementById('unitKg').addEventListener('click', () => {
+            useLbs = false;
+            updateUnitLabels();
+        });
+        document.getElementById('unitLbs').addEventListener('click', () => {
+            useLbs = true;
+            updateUnitLabels();
+        });
+
+        document.getElementById('exportBtn').addEventListener('click', async () => {
+            const entry = collectEntry();
+            if (Object.keys(entry).length === 0) {
+                showToast('Nothing to export');
+                return;
+            }
+
+            const today = formatDateKey(new Date());
+            const payload = { [today]: entry };
+            const text = JSON.stringify(payload, null, 2);
+
+            try {
+                await navigator.clipboard.writeText(text);
+                showToast('Copied to clipboard ✓');
+            } catch (err) {
+                // Fallback for older browsers / non-HTTPS
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand('copy');
+                    showToast('Copied to clipboard ✓');
+                } catch (e2) {
+                    prompt('Copy this JSON:', text);
+                }
+                document.body.removeChild(ta);
+            }
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (!confirm('Clear all fields?')) return;
+            for (const key of ALL_FIELDS) {
+                const el = document.getElementById(key);
+                if (!el) continue;
+                if (el.type === 'checkbox') el.checked = false;
+                else el.value = '';
+            }
+            showToast('Cleared');
+        });
+
+        // Init
+        const now = new Date();
+        document.getElementById('dateDisplay').textContent = formatDisplayDate(now);
+        updateUnitLabels();
+    </script>
+</body>
+</html>
