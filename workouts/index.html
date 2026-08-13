@@ -38,9 +38,38 @@
             gap: 12px;
         }
 
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         h1 {
             font-size: 1.35rem;
             font-weight: 600;
+        }
+
+        .hamburger {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            border-radius: 6px;
+        }
+
+        .hamburger:active {
+            background: #222;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--text);
+            border-radius: 1px;
         }
 
         .date-badge {
@@ -51,6 +80,168 @@
             font-size: 0.9rem;
             color: var(--accent);
             white-space: nowrap;
+        }
+
+        /* Side menu */
+        .menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+
+        .menu-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            max-width: 80vw;
+            height: 100%;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            z-index: 210;
+            transform: translateX(-100%);
+            transition: transform 0.25s ease;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .side-menu.open {
+            transform: translateX(0);
+        }
+
+        .side-menu-title {
+            font-size: 0.85rem;
+            color: var(--muted);
+            padding: 0 20px 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .menu-item {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            color: var(--text);
+            padding: 14px 20px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:active,
+        .menu-item:hover {
+            background: #222;
+            border-left-color: var(--accent);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 420px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .modal-body {
+            padding: 16px 18px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-body label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .modal-body textarea {
+            width: 100%;
+            min-height: 200px;
+            background: #222;
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 13px;
+            resize: vertical;
+            line-height: 1.4;
+        }
+
+        .modal-body textarea:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .modal-footer {
+            padding: 14px 18px;
+            border-top: 1px solid var(--border);
+        }
+
+        .modal-footer .btn {
+            width: 100%;
         }
 
         .section {
@@ -217,7 +408,7 @@
             border-radius: 10px;
             font-weight: 500;
             font-size: 0.95rem;
-            z-index: 100;
+            z-index: 400;
             transition: transform 0.3s ease;
             pointer-events: none;
             box-shadow: 0 8px 24px rgba(0,0,0,0.4);
@@ -247,9 +438,40 @@
 </head>
 <body>
     <header>
-        <h1>Workout Log</h1>
+        <div class="header-left">
+            <button type="button" class="hamburger" id="hamburgerBtn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1>Workout Log</h1>
+        </div>
         <div class="date-badge" id="dateDisplay">—</div>
     </header>
+
+    <!-- Side menu -->
+    <div class="menu-overlay" id="menuOverlay"></div>
+    <nav class="side-menu" id="sideMenu">
+        <div class="side-menu-title">Menu</div>
+        <button type="button" class="menu-item" id="updatePBsBtn">Update Personal Bests</button>
+    </nav>
+
+    <!-- Update PBs Modal -->
+    <div class="modal-overlay" id="pbModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Update Personal Bests</h2>
+                <button type="button" class="modal-close" id="pbModalClose" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="pbJsonInput">Paste workout JSON</label>
+                <textarea id="pbJsonInput" placeholder='{"2026-08-13": { "shoulders_weight": 7.5, ... }}'></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="pbUpdateBtn">Update</button>
+            </div>
+        </div>
+    </div>
 
     <div class="unit-toggle" style="margin-bottom: 16px;">
         Units:
@@ -444,25 +666,25 @@
 
 // Single source of truth for every placeholder (weights stored in kg)
 const PLACEHOLDERS = {
-    shoulders_weight: 7.5,
+    shoulders_weight: 7.5,          // per hand
     shoulders_reps: 10,
 
-    military_press_weight: 25,
+    military_press_weight: 25,          // per hand
     military_press_reps: 10,
 
-    curls_weight: 25,
+    curls_weight: 25,          // per hand
     curls_reps: 10,
 
-    tricep_curls_weight: 15,
-    tricep_curls_reps: 10,
+    tricep_curls_weight: 17.5,
+    tricep_curls_reps: 8,
 
-    chest_flies_weight: 15,
-    chest_flies_reps: 10,
+    chest_flies_weight: 15,          // per hand
+    chest_flies_reps: 12,
 
-    chest_presses_weight: 17.5,
+    chest_presses_weight: 20,
     chest_presses_reps: 10,
 
-    pushups_standard_reps: 10,
+    pushups_standard_reps: 15,
     pushups_tricep_reps: 5,
 
     crunches_reps: 35,
@@ -476,7 +698,7 @@ const PLACEHOLDERS = {
     inverted_plank_time: '0:30',
 
     elliptical_bike_time: '30',
-    body_weight: 70
+    body_weight: 70,
 };
 
         const WEIGHT_FIELDS = [
@@ -484,6 +706,22 @@ const PLACEHOLDERS = {
             'tricep_curls_weight', 'chest_flies_weight', 'chest_presses_weight',
             'body_weight'
         ];
+
+        // Weight fields that show "per hand" in the placeholder
+        const PER_HAND_FIELDS = [
+            'shoulders_weight', 'military_press_weight',
+            'curls_weight', 'chest_flies_weight'
+        ];
+
+        // Weight ↔ reps pairs. When weight increases we always take the new reps too.
+        const WEIGHT_REP_PAIRS = {
+            shoulders_weight: 'shoulders_reps',
+            military_press_weight: 'military_press_reps',
+            curls_weight: 'curls_reps',
+            tricep_curls_weight: 'tricep_curls_reps',
+            chest_flies_weight: 'chest_flies_reps',
+            chest_presses_weight: 'chest_presses_reps'
+        };
 
         const ALL_FIELDS = [
             'stretches_pre',
@@ -500,6 +738,8 @@ const PLACEHOLDERS = {
             'elliptical_bike_time', 'body_weight',
             'stretches_post'
         ];
+
+        const TIME_FIELDS = ['plank_time', 'inverted_plank_time'];
 
         function formatDateKey(date) {
             const y = date.getFullYear();
@@ -580,10 +820,12 @@ const PLACEHOLDERS = {
                 if (!el) continue;
 
                 if (WEIGHT_FIELDS.includes(id)) {
-                    // Convert weight placeholders when in lbs mode
-                    el.placeholder = useLbs
+                    const display = useLbs
                         ? String(Math.round(value * KG_TO_LBS * 10) / 10)
                         : String(value);
+                    el.placeholder = PER_HAND_FIELDS.includes(id)
+                        ? display + ' per hand'
+                        : display;
                 } else {
                     el.placeholder = String(value);
                 }
@@ -597,6 +839,275 @@ const PLACEHOLDERS = {
                 }
             }
         }
+
+        // --- Time helpers for personal best comparison ---
+        function timeToSeconds(val) {
+            if (val === undefined || val === null || val === '') return null;
+            if (typeof val === 'number') return val;
+            const str = String(val).trim();
+            if (str.includes(':')) {
+                const parts = str.split(':');
+                const mins = parseInt(parts[0], 10) || 0;
+                const secs = parseInt(parts[1], 10) || 0;
+                return mins * 60 + secs;
+            }
+            const num = parseFloat(str);
+            return isNaN(num) ? null : num;
+        }
+
+        function isBetter(key, newVal, currentVal) {
+            if (newVal === undefined || newVal === null) return false;
+            if (currentVal === undefined || currentVal === null) return true;
+
+            // Body weight: lower is better
+            if (key === 'body_weight') {
+                const a = parseFloat(newVal);
+                const b = parseFloat(currentVal);
+                if (isNaN(a) || isNaN(b)) return false;
+                return a < b;
+            }
+
+            // Time fields (plank etc.): longer is better
+            if (TIME_FIELDS.includes(key)) {
+                const a = timeToSeconds(newVal);
+                const b = timeToSeconds(currentVal);
+                if (a === null || b === null) return false;
+                return a > b;
+            }
+
+            // Everything else (weights, reps, elliptical minutes): higher is better
+            const a = parseFloat(newVal);
+            const b = parseFloat(currentVal);
+            if (isNaN(a) || isNaN(b)) {
+                return String(newVal) > String(currentVal);
+            }
+            return a > b;
+        }
+
+        // Same comparison logic as before, but writes into the supplied target object
+function applyPersonalBests(pastedObj, target) {
+    let entry = null;
+    if (pastedObj && typeof pastedObj === 'object') {
+        const keys = Object.keys(pastedObj);
+        if (keys.length === 1 && typeof pastedObj[keys[0]] === 'object' && pastedObj[keys[0]] !== null) {
+            entry = pastedObj[keys[0]];
+        } else {
+            entry = pastedObj;
+        }
+    }
+    if (!entry || typeof entry !== 'object') return 0;
+
+    let updatedCount = 0;
+    const processedRepKeys = new Set();
+
+    // 1. Weight + reps pairs
+    for (const [weightKey, repsKey] of Object.entries(WEIGHT_REP_PAIRS)) {
+        if (!(weightKey in entry)) continue;
+
+        const newWeight = parseFloat(entry[weightKey]);
+        const curWeight = parseFloat(target[weightKey]);
+
+        if (isNaN(newWeight)) continue;
+
+        if (isNaN(curWeight) || newWeight > curWeight) {
+            target[weightKey] = newWeight;
+            updatedCount++;
+
+            if (repsKey in entry && entry[repsKey] !== undefined && entry[repsKey] !== null) {
+                const newReps = parseFloat(entry[repsKey]);
+                target[repsKey] = isNaN(newReps) ? entry[repsKey] : newReps;
+                updatedCount++;
+                processedRepKeys.add(repsKey);
+            }
+        } else if (newWeight === curWeight) {
+            if (repsKey in entry && entry[repsKey] !== undefined && entry[repsKey] !== null) {
+                const newReps = parseFloat(entry[repsKey]);
+                const curReps = parseFloat(target[repsKey]);
+                if (!isNaN(newReps) && (isNaN(curReps) || newReps > curReps)) {
+                    target[repsKey] = newReps;
+                    updatedCount++;
+                    processedRepKeys.add(repsKey);
+                }
+            }
+        }
+    }
+
+    // 2. Remaining unpaired fields
+    for (const key of Object.keys(target)) {
+        if (key in WEIGHT_REP_PAIRS) continue;
+        if (processedRepKeys.has(key)) continue;
+        if (!(key in entry)) continue;
+
+        const newVal = entry[key];
+        const currentVal = target[key];
+
+        if (isBetter(key, newVal, currentVal)) {
+            if (TIME_FIELDS.includes(key) || key === 'elliptical_bike_time') {
+                target[key] = String(newVal);
+            } else {
+                const num = parseFloat(newVal);
+                target[key] = isNaN(num) ? newVal : num;
+            }
+            updatedCount++;
+        }
+    }
+
+    return updatedCount;
+}
+
+// Produce a ready-to-paste source declaration with the // per hand comments
+function buildPlaceholdersSource(obj) {
+    const lines = ['const PLACEHOLDERS = {'];
+
+    const order = [
+        'shoulders_weight', 'shoulders_reps',
+        'military_press_weight', 'military_press_reps',
+        'curls_weight', 'curls_reps',
+        'tricep_curls_weight', 'tricep_curls_reps',
+        'chest_flies_weight', 'chest_flies_reps',
+        'chest_presses_weight', 'chest_presses_reps',
+        'pushups_standard_reps', 'pushups_tricep_reps',
+        'crunches_reps', 'crossing_crunches_reps', 'oblique_crunches_reps',
+        'leg_lifts_reps', 'scissor_kicks_reps', 'jack_knives_reps',
+        'bicycle_twists_reps', 'plank_time', 'inverted_plank_time',
+        'elliptical_bike_time', 'body_weight'
+    ];
+
+    const perHand = new Set(PER_HAND_FIELDS);
+
+    // Group related pairs with a blank line between exercise groups
+    const groups = [
+        ['shoulders_weight', 'shoulders_reps'],
+        ['military_press_weight', 'military_press_reps'],
+        ['curls_weight', 'curls_reps'],
+        ['tricep_curls_weight', 'tricep_curls_reps'],
+        ['chest_flies_weight', 'chest_flies_reps'],
+        ['chest_presses_weight', 'chest_presses_reps'],
+        ['pushups_standard_reps', 'pushups_tricep_reps'],
+        ['crunches_reps', 'crossing_crunches_reps', 'oblique_crunches_reps',
+         'leg_lifts_reps', 'scissor_kicks_reps', 'jack_knives_reps',
+         'bicycle_twists_reps', 'plank_time', 'inverted_plank_time'],
+        ['elliptical_bike_time', 'body_weight']
+    ];
+
+    groups.forEach((group, gi) => {
+        if (gi > 0) lines.push('');                 // blank line between groups
+
+        group.forEach(key => {
+            let val = obj[key];
+            let rendered;
+
+            if (typeof val === 'string') {
+                rendered = `'${val}'`;
+            } else {
+                rendered = String(val);
+            }
+
+            const comment = perHand.has(key) ? '          // per hand' : '';
+            lines.push(`    ${key}: ${rendered},${comment}`);
+        });
+    });
+
+    lines.push('};');
+    return lines.join('\n');
+}
+
+        // --- Menu & Modal controls ---
+        const menuOverlay = document.getElementById('menuOverlay');
+        const sideMenu = document.getElementById('sideMenu');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const pbModal = document.getElementById('pbModal');
+        const pbJsonInput = document.getElementById('pbJsonInput');
+
+        function openMenu() {
+            sideMenu.classList.add('open');
+            menuOverlay.classList.add('open');
+        }
+
+        function closeMenu() {
+            sideMenu.classList.remove('open');
+            menuOverlay.classList.remove('open');
+        }
+
+        function openPbModal() {
+            closeMenu();
+            pbJsonInput.value = '';
+            pbModal.classList.add('open');
+            setTimeout(() => pbJsonInput.focus(), 150);
+        }
+
+        function closePbModal() {
+            pbModal.classList.remove('open');
+        }
+
+        hamburgerBtn.addEventListener('click', openMenu);
+        menuOverlay.addEventListener('click', closeMenu);
+        document.getElementById('updatePBsBtn').addEventListener('click', openPbModal);
+        document.getElementById('pbModalClose').addEventListener('click', closePbModal);
+
+        pbModal.addEventListener('click', (e) => {
+            if (e.target === pbModal) closePbModal();
+        });
+
+       document.getElementById('pbUpdateBtn').addEventListener('click', async () => {
+            const raw = pbJsonInput.value.trim();
+            if (!raw) {
+                showToast('Paste some JSON first');
+                return;
+            }
+
+            // Aggressive clean-up of copy-paste artefacts
+            let cleaned = raw
+                .replace(/[\u201C\u201D]/g, '"')
+                .replace(/[\u2018\u2019]/g, "'")
+                .replace(/[\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\t]/g, ' ')
+                .replace(/,(\s*[}\]])/g, '$1')
+                .trim();
+
+            let parsed;
+            try {
+                parsed = JSON.parse(cleaned);
+            } catch (err) {
+                showToast('Invalid JSON');
+                console.error('JSON parse error:', err.message);
+                return;
+            }
+
+            // Work on a shallow copy so we don't touch the live PLACEHOLDERS
+            const updated = { ...PLACEHOLDERS };
+            const count = applyPersonalBests(parsed, updated);   // see helper below
+
+            if (count === 0) {
+                showToast('No new personal bests');
+                closePbModal();
+                return;
+            }
+
+            // Build a clean, copy-paste-ready source snippet
+            const source = buildPlaceholdersSource(updated);
+
+            try {
+                await navigator.clipboard.writeText(source);
+                showToast(`Copied updated PLACEHOLDERS (${count} change${count === 1 ? '' : 's'})`);
+            } catch (err) {
+                // Fallback
+                const ta = document.createElement('textarea');
+                ta.value = source;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand('copy');
+                    showToast(`Copied updated PLACEHOLDERS (${count} change${count === 1 ? '' : 's'})`);
+                } catch (e2) {
+                    prompt('Copy this:', source);
+                }
+                document.body.removeChild(ta);
+            }
+
+            closePbModal();
+        });
 
         document.getElementById('unitKg').addEventListener('click', () => {
             if (useLbs) {
@@ -626,7 +1137,6 @@ const PLACEHOLDERS = {
                 await navigator.clipboard.writeText(text);
                 showToast('Copied to clipboard ✓');
             } catch (err) {
-                // Fallback for older browsers / non-HTTPS
                 const ta = document.createElement('textarea');
                 ta.value = text;
                 ta.style.position = 'fixed';
