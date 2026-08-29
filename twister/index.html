@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twister Spinner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f0f1a;
+            overflow: hidden;
+            color: white;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, #1a1a2e 0%, #0f0f1a 50%, #16213e 100%);
+            z-index: -2;
+            animation: bgShift 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes bgShift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-5%, -5%) scale(1.1); }
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            z-index: -1;
+            animation: orbFloat 15s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: #e94560;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: #0f3460;
+            bottom: 20%;
+            right: 15%;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: #533483;
+            top: 50%;
+            left: 60%;
+            animation-delay: -10s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(30px, -30px); }
+            66% { transform: translate(-20px, 20px); }
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 340px;
+            height: 340px;
+            margin: 20px 0;
+        }
+
+        .wheel-glow {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                rgba(255, 71, 87, 0.3) 0deg 90deg,
+                rgba(46, 213, 115, 0.3) 90deg 180deg,
+                rgba(255, 165, 2, 0.3) 180deg 270deg,
+                rgba(30, 144, 255, 0.3) 270deg 360deg
+            );
+            filter: blur(20px);
+            opacity: 0.6;
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.02); }
+        }
+
+        .board {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #1a1a2e;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 0 60px rgba(0, 0, 0, 0.5),
+                inset 0 0 60px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+
+        .board:hover {
+            transform: scale(1.02);
+            box-shadow: 
+                0 0 80px rgba(0, 0, 0, 0.6),
+                inset 0 0 60px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(255, 255, 255, 0.05);
+        }
+
+        .board:active {
+            transform: scale(0.98);
+        }
+
+        .quadrant-label {
+            position: absolute;
+            font-size: 12.5px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #left-foot-label { top: 28%; left: 28%; transform: translate(-50%, -50%); }
+        #right-hand-label { top: 28%; left: 72%; transform: translate(-50%, -50%); }
+        #right-foot-label { top: 72%; left: 72%; transform: translate(-50%, -50%); }
+        #left-hand-label { top: 72%; left: 28%; transform: translate(-50%, -50%); }
+
+        .hub {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 80px;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, #2a2a4a 0%, #1a1a2e 100%);
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.5),
+                inset 0 2px 10px rgba(255, 255, 255, 0.05);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hub-icon {
+            font-size: 24px;
+            opacity: 0.6;
+        }
+
+        .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 8px;
+            height: 42%;
+            background: linear-gradient(to bottom, 
+                rgba(255, 255, 255, 0.95) 0%, 
+                rgba(255, 255, 255, 0.3) 80%,
+                transparent 100%);
+            transform-origin: top center;
+            transform: translate(-50%, 0) rotate(0deg);
+            z-index: 15;
+            border-radius: 2px;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+        }
+
+        .spinner::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            border-radius: 50%;
+            transform: translate(-50%, 0);
+            box-shadow: 
+                0 0 15px rgba(255, 255, 255, 0.6),
+                0 0 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .result-container {
+            margin-top: 30px;
+            text-align: center;
+            min-height: 80px;
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .result {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            min-height: 2.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .result.animate {
+            animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .result-color-red { color: #FF2B2B; text-shadow: 0 0 20px rgba(255, 71, 87, 0.4); }
+        .result-color-green { color: #00A803; text-shadow: 0 0 20px rgba(46, 213, 115, 0.4); }
+        .result-color-yellow { color: #FFEA2A; text-shadow: 0 0 20px rgba(255, 165, 2, 0.4); }
+        .result-color-blue { color: #187DF0; text-shadow: 0 0 20px rgba(30, 144, 255, 0.4); }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5) translateY(10px); opacity: 0; }
+            60% { transform: scale(1.1) translateY(-5px); opacity: 1; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .hint {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #555;
+            letter-spacing: 1px;
+        }
+
+        .hint kbd {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            font-family: inherit;
+            font-size: 0.75rem;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        @media (max-width: 480px) {
+            .wheel-container {
+                width: 280px;
+                height: 280px;
+            }
+            .title {
+                font-size: 1.8rem;
+            }
+            .result {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="title">Twister</div>
+    <div class="subtitle">Spin the wheel</div>
+
+    <div class="wheel-container">
+        <div class="wheel-glow"></div>
+        <div class="board" id="board">
+            <svg viewBox="0 0 340 340" style="position:absolute; width:100%; height:100%; z-index: 5;">
+                <defs>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                
+                <!-- 16 alternating segments: Red, Green, Yellow, Blue repeating -->
+                <!-- Quadrant mapping: 0-90 = Right Hand (top-right), 90-180 = Right Foot (bottom-right), 180-270 = Left Hand (bottom-left), 270-360 = Left Foot (top-left) -->
+                <path d="M 170,170 L 170.0,10.0 A 160,160 0 0,1 231.2,22.2 Z" fill="#FF2B2B" opacity="0.85"/>
+                <path d="M 170,170 L 231.2,22.2 A 160,160 0 0,1 283.1,56.9 Z" fill="#00A803" opacity="0.85"/>
+                <path d="M 170,170 L 283.1,56.9 A 160,160 0 0,1 317.8,108.8 Z" fill="#FFEA2A" opacity="0.85"/>
+                <path d="M 170,170 L 317.8,108.8 A 160,160 0 0,1 330.0,170.0 Z" fill="#187DF0" opacity="0.85"/>
+                <path d="M 170,170 L 330.0,170.0 A 160,160 0 0,1 317.8,231.2 Z" fill="#FF2B2B" opacity="0.85"/>
+                <path d="M 170,170 L 317.8,231.2 A 160,160 0 0,1 283.1,283.1 Z" fill="#00A803" opacity="0.85"/>
+                <path d="M 170,170 L 283.1,283.1 A 160,160 0 0,1 231.2,317.8 Z" fill="#FFEA2A" opacity="0.85"/>
+                <path d="M 170,170 L 231.2,317.8 A 160,160 0 0,1 170.0,330.0 Z" fill="#187DF0" opacity="0.85"/>
+                <path d="M 170,170 L 170.0,330.0 A 160,160 0 0,1 108.8,317.8 Z" fill="#FF2B2B" opacity="0.85"/>
+                <path d="M 170,170 L 108.8,317.8 A 160,160 0 0,1 56.9,283.1 Z" fill="#00A803" opacity="0.85"/>
+                <path d="M 170,170 L 56.9,283.1 A 160,160 0 0,1 22.2,231.2 Z" fill="#FFEA2A" opacity="0.85"/>
+                <path d="M 170,170 L 22.2,231.2 A 160,160 0 0,1 10.0,170.0 Z" fill="#187DF0" opacity="0.85"/>
+                <path d="M 170,170 L 10.0,170.0 A 160,160 0 0,1 22.2,108.8 Z" fill="#FF2B2B" opacity="0.85"/>
+                <path d="M 170,170 L 22.2,108.8 A 160,160 0 0,1 56.9,56.9 Z" fill="#00A803" opacity="0.85"/>
+                <path d="M 170,170 L 56.9,56.9 A 160,160 0 0,1 108.8,22.2 Z" fill="#FFEA2A" opacity="0.85"/>
+                <path d="M 170,170 L 108.8,22.2 A 160,160 0 0,1 170.0,10.0 Z" fill="#187DF0" opacity="0.85"/>
+                
+                <!-- 16 black divider lines -->
+                <line x1="170" y1="170" x2="231.2" y2="22.2" stroke="#000" stroke-width="1"/>
+                <line x1="170" y1="170" x2="283.1" y2="56.9" stroke="#000" stroke-width="1"/>
+                <line x1="170" y1="170" x2="317.8" y2="108.8" stroke="#000" stroke-width="1"/>
+                <line x1="170" y1="170" x2="330.0" y2="170.0" stroke="#000" stroke-width="5"/>
+                <line x1="170" y1="170" x2="317.8" y2="231.2" stroke="#000" stroke-width="1"/>
+                <line x1="170" y1="170" x2="283.1" y2="283.1" stroke="#000" stroke-width="1"/>
+                <line x1="170" y1="170" x2="231.2" y2="317.8" stroke="#000" stroke-width="1"/>
+                <line x1="170" y1="170" x2="170.0" y2="330.0" stroke="#000" stroke-width="5"/>
+                <line x1="170" y1="170" x2="108.8" y2="317.8" stroke="#000" stroke-width="1"/>
+                <line x1="170" y1="170" x2="56.9" y2="283.1" stroke="#000" stroke-width="1"/>
+                <line x1="170" y1="170" x2="22.2" y2="231.2" stroke="#000" stroke-width="1"/>
+                <line x1="170" y1="170" x2="10.0" y2="170.0" stroke="#000" stroke-width="5"/>
+                <line x1="170" y1="170" x2="22.2" y2="108.8" stroke="#000" stroke-width="1"/>
+                <line x1="170" y1="170" x2="56.9" y2="56.9" stroke="#000" stroke-width="1"/>
+                <line x1="170" y1="170" x2="108.8" y2="22.2" stroke="#000" stroke-width="1"/>
+                <line x1="170" y1="170" x2="170.0" y2="10.0" stroke="#000" stroke-width="5"/>
+                
+                <!-- Outer ring stroke -->
+                <circle cx="170" cy="170" r="160" fill="none" stroke="#000" stroke-width="3"/>
+            </svg>
+
+            <div class="quadrant-label" id="left-foot-label">Left Foot</div>
+            <div class="quadrant-label" id="right-hand-label">Right Hand</div>
+            <div class="quadrant-label" id="right-foot-label">Right Foot</div>
+            <div class="quadrant-label" id="left-hand-label">Left Hand</div>
+
+            <div class="hub">
+                <div class="hub-icon">&#10022;</div>
+            </div>
+            <div class="spinner" id="spinner"></div>
+        </div>
+    </div>
+
+    <div class="result-container">
+        <div class="result-label"></div>
+        <div class="result" id="result"></div>
+    </div>
+
+    <div class="hint">Click the wheel or press <kbd>Space</kbd> / <kbd>Enter</kbd></div>
+
+    <script>
+        const spinner = document.getElementById('spinner');
+        const resultText = document.getElementById('result');
+        const board = document.getElementById('board');
+        let isSpinning = false;
+        let lastAngle = 0;
+
+        const SOUND_DELAYS = {
+            reverseCymbal: 0,    // Delay before reverse cymbal starts (ms)
+            spinner: 0           // Delay before spinner sound starts (ms)
+        }
+
+        const reverseCymbal = new Audio('reverse cymbal 2.mp3');
+        const spinnerSound = new Audio('spinner.mp3');
+
+        const positions = [
+            // Right Foot quadrant (270-360): angles 281.25, 303.75, 326.25, 348.75
+            { angle: 281.25, limb: "Right Foot", color: "Red", colorClass: "result-color-red" },
+            { angle: 303.75, limb: "Right Foot", color: "Green", colorClass: "result-color-green" },
+            { angle: 326.25, limb: "Right Foot", color: "Yellow", colorClass: "result-color-yellow" },
+            { angle: 348.75, limb: "Right Foot", color: "Blue", colorClass: "result-color-blue" },
+            // Left Hand quadrant (0-90): angles 11.25, 33.75, 56.25, 78.75
+            { angle: 11.25, limb: "Left Hand", color: "Red", colorClass: "result-color-red" },
+            { angle: 33.75, limb: "Left Hand", color: "Green", colorClass: "result-color-green" },
+            { angle: 56.25, limb: "Left Hand", color: "Yellow", colorClass: "result-color-yellow" },
+            { angle: 78.75, limb: "Left Hand", color: "Blue", colorClass: "result-color-blue" },
+            // Left Foot quadrant (90-180): angles 101.25, 123.75, 146.25, 168.75
+            { angle: 101.25, limb: "Left Foot", color: "Red", colorClass: "result-color-red" },
+            { angle: 123.75, limb: "Left Foot", color: "Green", colorClass: "result-color-green" },
+            { angle: 146.25, limb: "Left Foot", color: "Yellow", colorClass: "result-color-yellow" },
+            { angle: 168.75, limb: "Left Foot", color: "Blue", colorClass: "result-color-blue" },
+            // Right Hand quadrant (180-270): angles 191.25, 213.75, 236.25, 258.75
+            { angle: 191.25, limb: "Right Hand", color: "Red", colorClass: "result-color-red" },
+            { angle: 213.75, limb: "Right Hand", color: "Green", colorClass: "result-color-green" },
+            { angle: 236.25, limb: "Right Hand", color: "Yellow", colorClass: "result-color-yellow" },
+            { angle: 258.75, limb: "Right Hand", color: "Blue", colorClass: "result-color-blue" }
+        ];
+
+        function getPositionFromAngle(angle) {
+            angle = ((angle % 360) + 360) % 360;
+            let closest = positions[0];
+            let minDiff = Math.abs(angle - positions[0].angle);
+            for (const p of positions) {
+                const diff = Math.abs(angle - p.angle);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closest = p;
+                }
+            }
+            return closest;
+        }
+
+        function clearResult() {
+            resultText.className = "result";
+            resultText.textContent = "";
+            resultText.style.opacity = "0";
+        }
+
+        function createConfetti() {
+            const colors = ['#FF2B2B', '#00A803', '#FFEA2A', '#187DF0', '#ff6b9d', '#c44569'];
+            for (let i = 0; i < 60; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = (window.innerWidth / 2 + (Math.random() - 0.5) * 300) + 'px';
+                confetti.style.top = '-10px';
+                confetti.style.width = (Math.random() * 6 + 4) + 'px';
+                confetti.style.height = (Math.random() * 6 + 4) + 'px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                confetti.style.animation = `fall ${Math.random() * 2 + 2.5}s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`;
+                confetti.style.animationDelay = (Math.random() * 0.5) + 's';
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 4000);
+            }
+        }
+
+function spinSpinner() {
+    if (isSpinning) return;
+    isSpinning = true;
+
+    // Clear previous result immediately when spin starts
+    clearResult();
+
+    // Play sound effects with configurable delays
+    setTimeout(() => {
+        reverseCymbal.currentTime = 0;
+        reverseCymbal.play().catch(e => console.log('Audio play failed:', e));
+    }, SOUND_DELAYS.reverseCymbal);
+
+    setTimeout(() => {
+        spinnerSound.currentTime = 0;
+        spinnerSound.play().catch(e => console.log('Audio play failed:', e));
+    }, SOUND_DELAYS.spinner);
+
+    const target = positions[Math.floor(Math.random() * positions.length)];
+    const targetAngle = target.angle;
+    const currentNormalized = ((lastAngle % 360) + 360) % 360;
+    
+    let delta = targetAngle - currentNormalized;
+    if (delta <= 0) delta += 360;
+    
+    const fullSpins = 5 + Math.floor(Math.random() * 3);
+    const totalAngle = lastAngle + delta + (360 * fullSpins);
+
+    spinner.style.transition = 'none';
+    spinner.style.transform = `translate(-50%, 0) rotate(${lastAngle}deg)`;
+    spinner.offsetHeight;
+
+    spinner.style.transition = 'transform 2.5s cubic-bezier(0.15, 0, 0.1, 1)';
+    spinner.style.transform = `translate(-50%, 0) rotate(${totalAngle}deg)`;
+    lastAngle = totalAngle;
+
+    setTimeout(() => {
+        resultText.textContent = `${target.limb} on ${target.color}`;
+        resultText.className = `result ${target.colorClass} animate`;
+        resultText.style.opacity = "1";
+        createConfetti();
+        isSpinning = false;
+    }, 2500);
+}
+
+        board.addEventListener('click', spinSpinner);
+        document.addEventListener('keydown', (e) => {
+            if ((e.code === 'Space' || e.code === 'Enter') && !e.repeat) {
+                e.preventDefault();
+                spinSpinner();
+            }
+            if (e.code === 'Escape') {
+                clearResult();
+            }
+        });
+    </script>
+</body>
+</html>
