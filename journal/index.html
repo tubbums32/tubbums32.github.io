@@ -641,17 +641,17 @@
             shoulders_weight: 7.5,          // per hand
             shoulders_reps: 10,
 
-            military_press_weight: 12.5,          // per hand
-            military_press_reps: 10,
+            military_press_weight: 15,          // per hand
+            military_press_reps: 8,
 
-            curls_weight: 12.5,          // per hand
-            curls_reps: 10,
+            curls_weight: 15,          // per hand
+            curls_reps: 8,
 
-            tricep_curls_weight: 17.5,
-            tricep_curls_reps: 8,
+            tricep_curls_weight: 20,
+            tricep_curls_reps: 10,
 
-            chest_flies_weight: 7.5,          // per hand
-            chest_flies_reps: 12,
+            chest_flies_weight: 10,          // per hand
+            chest_flies_reps: 10,
 
             chest_presses_weight: 20,
             chest_presses_reps: 10,
@@ -659,13 +659,13 @@
             pushups_standard_reps: 15,
             pushups_tricep_reps: 5,
 
-            crunches_reps: 35,
-            crossing_crunches_reps: 15,
-            oblique_crunches_reps: 10,
-            leg_lifts_reps: 15,
-            scissor_kicks_reps: 50,
-            jack_knives_reps: 5,
-            bicycle_twists_reps: 35,
+            crunches_reps: 100,
+            crossing_crunches_reps: 35,
+            inclined_situps_reps: 10,
+            leg_lifts_reps: 25,
+            scissor_kicks_reps: 25,
+            butterfly_kicks_reps: 100,
+            bicycle_twists_reps: 100,
             plank_time: '0:30',
             inverted_plank_time: '0:30',
 
@@ -767,33 +767,6 @@
         }
 
         const fields = {
-            stretches_pre: { type: 'checkbox', label: 'Stretches' },
-            shoulders_weight: { type: 'number', label: 'Shoulders Weight', placeholder: 'e.g. 45', isWeight: true },
-            shoulders_reps: { type: 'number', label: 'Shoulders Reps', placeholder: 'e.g. 12' },
-            curls_weight: { type: 'number', label: 'Curls Weight', placeholder: 'e.g. 30', isWeight: true },
-            curls_reps: { type: 'number', label: 'Curls Reps', placeholder: 'e.g. 15' },
-            tricep_curls_weight: { type: 'number', label: 'Tricep Curls Weight', placeholder: 'e.g. 25', isWeight: true },
-            tricep_curls_reps: { type: 'number', label: 'Tricep Curls Reps', placeholder: 'e.g. 15' },
-            military_press_weight: { type: 'number', label: 'Military Press Weight', placeholder: 'e.g. 50', isWeight: true },
-            military_press_reps: { type: 'number', label: 'Military Press Reps', placeholder: 'e.g. 10' },
-            chest_flies_weight: { type: 'number', label: 'Chest Flies Weight', placeholder: 'e.g. 40', isWeight: true },
-            chest_flies_reps: { type: 'number', label: 'Chest Flies Reps', placeholder: 'e.g. 12' },
-            chest_presses_weight: { type: 'number', label: 'Chest Presses Weight', placeholder: 'e.g. 60', isWeight: true },
-            chest_presses_reps: { type: 'number', label: 'Chest Presses Reps', placeholder: 'e.g. 10' },
-            pushups_standard_reps: { type: 'number', label: 'Pushups Standard Reps', placeholder: 'e.g. 20' },
-            pushups_tricep_reps: { type: 'number', label: 'Pushups Tricep Reps', placeholder: 'e.g. 15' },
-            crunches_reps: { type: 'number', label: 'Crunches Reps', placeholder: 'e.g. 30' },
-            crossing_crunches_reps: { type: 'number', label: 'Crossing Crunches Reps', placeholder: 'e.g. 25' },
-            oblique_crunches_reps: { type: 'number', label: 'Inclined Situps', placeholder: 'e.g. 20' },
-            leg_lifts_reps: { type: 'number', label: 'Leg Lifts Reps', placeholder: 'e.g. 20' },
-            scissor_kicks_reps: { type: 'number', label: 'Scissor Kicks', placeholder: 'e.g. 20' },
-            jack_knives_reps: { type: 'number', label: 'Butterfly Kicks', placeholder: 'e.g. 15' },
-            bicycle_twists_reps: { type: 'number', label: 'Bicycle Twists Reps', placeholder: 'e.g. 25' },
-            plank_time: { type: 'text', label: 'Plank Time', placeholder: 'e.g. 3:00' },
-            inverted_plank_time: { type: 'text', label: 'Inverted Plank Time', placeholder: 'e.g. 1:45' },
-            elliptical_bike_time: { type: 'text', label: 'Elliptical / Bike (min)', placeholder: 'e.g. 45' },
-            stretches_post: { type: 'checkbox', label: 'Stretches' },
-            body_weight: { type: 'number', label: 'Body Weight', placeholder: 'e.g. 85', isWeight: true },
             breakfast: { type: 'text', label: 'Breakfast', placeholder: 'e.g. Oatmeal with berries' },
             breakfast_calories: { type: 'number', label: 'Calories', placeholder: 'e.g. 450' },
             lunch: { type: 'text', label: 'Lunch', placeholder: 'e.g. Grilled chicken salad' },
@@ -910,10 +883,10 @@
             const coreKeys = [
                 'crunches_reps',
                 'crossing_crunches_reps',
-                'oblique_crunches_reps',
+                'inclined_situps_reps',
                 'leg_lifts_reps',
                 'scissor_kicks_reps',
-                'jack_knives_reps',
+                'butterfly_kicks_reps',
                 'bicycle_twists_reps'
             ];
             coreKeys.forEach(key => {
@@ -1024,10 +997,10 @@
             const absExercises = [
                 {key: 'crunches_reps', label: 'Crunches'},
                 {key: 'crossing_crunches_reps', label: 'Crossing Crunches'},
-                {key: 'oblique_crunches_reps', label: 'Inclined Situps'},
+                {key: 'inclined_situps_reps', label: 'Inclined Situps'},
                 {key: 'leg_lifts_reps', label: 'Leg Lifts'},
                 {key: 'scissor_kicks_reps', label: 'Scissor Kicks'},
-                {key: 'jack_knives_reps', label: 'Butterfly Kicks'},
+                {key: 'butterfly_kicks_reps', label: 'Butterfly Kicks'},
                 {key: 'bicycle_twists_reps', label: 'Bicycle Twists'},
                 {key: 'plank_time', label: 'Plank'},
                 {key: 'inverted_plank_time', label: 'Inverted Plank'}
