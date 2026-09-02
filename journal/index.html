@@ -1686,18 +1686,79 @@
                             showToast('Invalid journal data file', true);
                             return;
                         }
-                        if (!confirm('Import will safely merge with existing data (never deletes journal text or other fields). Continue?')) {
+                        if (!confirm('Import will merge with existing data. Continue?')) {
                             importFile.value = '';
                             return;
                         }
 
-                        let datesUpdated = 0;
+                        // Fields that should be concatenated on Merge (text / textarea)
+                        const TEXT_FIELDS = new Set([
+                            'breakfast', 'lunch', 'dinner',
+                            'what_did_you_do', 'what_did_you_accomplish', 'work',
+                            'for_you_fam', 'high_point', 'plan_tomorrow', 'longer_term_plans',
+                            'plank_time', 'inverted_plank_time', 'elliptical_bike_time'
+                        ]);
+
+                        // Detect conflicts: existing non-empty value vs incoming non-empty value
+                        let hasConflict = false;
+                        for (const [key, value] of Object.entries(imported)) {
+                            if (key === 'longer_term_plans') {
+                                if (typeof value === 'string' && value.trim() !== '' &&
+                                    journalData.longer_term_plans && journalData.longer_term_plans.trim() !== '' &&
+                                    journalData.longer_term_plans !== value) {
+                                    hasConflict = true;
+                                    break;
+                                }
+                                continue;
+                            }
+                            if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
+                            if (typeof value !== 'object' || value === null || Array.isArray(value)) continue;
+
+                            const existing = journalData[key] || {};
+                            for (const [field, fieldVal] of Object.entries(value)) {
+                                if (fieldVal === undefined || fieldVal === null) continue;
+                                if (typeof fieldVal === 'string' && fieldVal.trim() === '') continue;
+
+                                const prev = existing[field];
+                                if (prev === undefined || prev === null) continue;
+                                if (typeof prev === 'string' && prev.trim() === '') continue;
+                                if (prev === fieldVal) continue;
+
+                                hasConflict = true;
+                                break;
+                            }
+                            if (hasConflict) break;
+                        }
+
+                        let mode = 'overwrite'; // default when no conflict
+                        if (hasConflict) {
+                            const choice = confirm(
+                                'Some fields already have data.\n\n' +
+                                'OK = Merge (append new text after existing; numbers take the new value)\n' +
+                                'Cancel = Overwrite (replace with imported values)'
+                            );
+                            mode = choice ? 'merge' : 'overwrite';
+                        }
+
                         let fieldsAddedOrUpdated = 0;
 
                         for (const [key, value] of Object.entries(imported)) {
                             if (key === 'longer_term_plans') {
                                 if (typeof value === 'string' && value.trim() !== '') {
-                                    journalData.longer_term_plans = value;
+                                    const prev = journalData.longer_term_plans || '';
+                                    if (prev.trim() === '') {
+                                        journalData.longer_term_plans = value;
+                                        fieldsAddedOrUpdated++;
+                                    } else if (prev !== value) {
+                                        if (mode === 'merge') {
+                                            const trimmed = prev.replace(/\s+$/, '');
+                                            const needsPeriod = trimmed.length > 0 && !/[.!?…]$/.test(trimmed);
+                                            journalData.longer_term_plans = trimmed + (needsPeriod ? '.' : '') + ' ' + value;
+                                        } else {
+                                            journalData.longer_term_plans = value;
+                                        }
+                                        fieldsAddedOrUpdated++;
+                                    }
                                 }
                                 continue;
                             }
@@ -1705,19 +1766,34 @@
                             if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
                             if (typeof value !== 'object' || value === null || Array.isArray(value)) continue;
 
-                            if (!journalData[key]) {
-                                journalData[key] = {};
-                                datesUpdated++;
-                            }
+                            if (!journalData[key]) journalData[key] = {};
 
                             for (const [field, fieldVal] of Object.entries(value)) {
-                                // Skip empty / nullish so we never wipe an existing value with blank import data
                                 if (fieldVal === undefined || fieldVal === null) continue;
                                 if (typeof fieldVal === 'string' && fieldVal.trim() === '') continue;
 
                                 const prev = journalData[key][field];
-                                if (prev !== fieldVal) {
+                                const prevEmpty = prev === undefined || prev === null ||
+                                    (typeof prev === 'string' && prev.trim() === '');
+
+                                if (prevEmpty) {
                                     journalData[key][field] = fieldVal;
+                                    fieldsAddedOrUpdated++;
+                                } else if (prev === fieldVal) {
+                                    // identical – skip
+                                } else if (mode === 'overwrite') {
+                                    journalData[key][field] = fieldVal;
+                                    fieldsAddedOrUpdated++;
+                                } else {
+                                    // merge
+                                    if (TEXT_FIELDS.has(field) && typeof prev === 'string') {
+                                        const trimmed = prev.replace(/\s+$/, '');
+                                        const needsPeriod = trimmed.length > 0 && !/[.!?…]$/.test(trimmed);
+                                        journalData[key][field] = trimmed + (needsPeriod ? '.' : '') + ' ' + fieldVal;
+                                    } else {
+                                        // numeric / checkbox / etc. → take the new value
+                                        journalData[key][field] = fieldVal;
+                                    }
                                     fieldsAddedOrUpdated++;
                                 }
                             }
@@ -1730,7 +1806,7 @@
                         saveData();
                         renderSidebar(true);
                         renderForm();
-                        showToast(`Import OK · ${fieldsAddedOrUpdated} fields updated`);
+                        showToast(`Import OK · ${fieldsAddedOrUpdated} fields updated (${mode})`);
                     } catch (err) {
                         showToast('Failed to parse JSON file', true);
                     }
