@@ -766,21 +766,54 @@
             return String(raw);
         }
 
-        const fields = {
-            breakfast: { type: 'text', label: 'Breakfast', placeholder: 'e.g. Oatmeal with berries' },
-            breakfast_calories: { type: 'number', label: 'Calories', placeholder: 'e.g. 450' },
-            lunch: { type: 'text', label: 'Lunch', placeholder: 'e.g. Grilled chicken salad' },
-            lunch_calories: { type: 'number', label: 'Calories', placeholder: 'e.g. 650' },
-            dinner: { type: 'text', label: 'Dinner', placeholder: 'e.g. Salmon with veggies' },
-            dinner_calories: { type: 'number', label: 'Calories', placeholder: 'e.g. 720' },
-            alcohol_servings: { type: 'number', label: 'Servings of Alcohol', placeholder: 'e.g. 0' },
-            what_did_you_do: { type: 'textarea', label: 'What did you do today, generally speaking?', placeholder: '' },
-            what_did_you_accomplish: { type: 'textarea', label: 'What did you accomplish?', placeholder: '' },
-            work: { type: 'textarea', label: 'What did you do for work?', placeholder: '' },
-            for_you_fam: { type: 'textarea', label: 'What did you do for you/fam?', placeholder: '' },
-            high_point: { type: 'textarea', label: 'What was a high point from today?', placeholder: '' },
-            plan_tomorrow: { type: 'textarea', label: 'What do you plan to do tomorrow?', placeholder: '' },
-            longer_term_plans: { type: 'textarea', label: 'Longer term plans that are on your mind?', placeholder: '' }
+                const fields = {
+            // Exercises / metrics (needed for auto-save + live charts)
+            hours_of_sleep:           { type: 'number', label: 'Hours of Sleep', placeholder: '8'},
+            stretches_pre:            { type: 'checkbox', label: 'Stretches' },
+            shoulders_weight:         { type: 'number', label: 'Shoulders Weight', isWeight: true },
+            shoulders_reps:           { type: 'number', label: 'Shoulders Reps' },
+            military_press_weight:    { type: 'number', label: 'Military Press Weight', isWeight: true },
+            military_press_reps:      { type: 'number', label: 'Military Press Reps' },
+            curls_weight:             { type: 'number', label: 'Bicep Curls Weight', isWeight: true },
+            curls_reps:               { type: 'number', label: 'Bicep Curls Reps' },
+            tricep_curls_weight:      { type: 'number', label: 'Tricep Curls Weight', isWeight: true },
+            tricep_curls_reps:        { type: 'number', label: 'Tricep Curls Reps' },
+            chest_flies_weight:       { type: 'number', label: 'Chest Flies Weight', isWeight: true },
+            chest_flies_reps:         { type: 'number', label: 'Chest Flies Reps' },
+            chest_presses_weight:     { type: 'number', label: 'Chest Presses Weight', isWeight: true },
+            chest_presses_reps:       { type: 'number', label: 'Chest Presses Reps' },
+            pushups_standard_reps:    { type: 'number', label: 'Pushups Standard' },
+            pushups_tricep_reps:      { type: 'number', label: 'Pushups Tricep' },
+            crunches_reps:            { type: 'number', label: 'Crunches' },
+            crossing_crunches_reps:   { type: 'number', label: 'Crossing Crunches' },
+            inclined_situps_reps:     { type: 'number', label: 'Inclined Situps' },
+            leg_lifts_reps:           { type: 'number', label: 'Leg Lifts' },
+            scissor_kicks_reps:       { type: 'number', label: 'Scissor Kicks' },
+            butterfly_kicks_reps:     { type: 'number', label: 'Butterfly Kicks' },
+            bicycle_twists_reps:      { type: 'number', label: 'Bicycle Twists' },
+            plank_time:               { type: 'text',   label: 'Plank' },
+            inverted_plank_time:      { type: 'text',   label: 'Inverted Plank' },
+            elliptical_bike_time:     { type: 'text',   label: 'Elliptical / Bike (min)' },
+            body_weight:              { type: 'number', label: 'Body Weight', isWeight: true },
+            stretches_post:           { type: 'checkbox', label: 'Stretches' },
+
+            // Meals
+            breakfast:                { type: 'text',   label: 'Breakfast', placeholder: '' },
+            breakfast_calories:       { type: 'number', label: 'Calories', placeholder: '' },
+            lunch:                    { type: 'text',   label: 'Lunch', placeholder: '' },
+            lunch_calories:           { type: 'number', label: 'Calories', placeholder: '' },
+            dinner:                   { type: 'text',   label: 'Dinner', placeholder: '' },
+            dinner_calories:          { type: 'number', label: 'Calories', placeholder: '' },
+            alcohol_servings:         { type: 'number', label: 'Servings of Alcohol', placeholder: '0' },
+
+            // Journal
+            what_did_you_do:          { type: 'textarea', label: 'What did you do today, generally speaking?', placeholder: '' },
+            what_did_you_accomplish:  { type: 'textarea', label: 'What did you accomplish?', placeholder: '' },
+            work:                     { type: 'textarea', label: 'What did you do for work?', placeholder: '' },
+            for_you_fam:              { type: 'textarea', label: 'What did you do for you/fam?', placeholder: '' },
+            high_point:               { type: 'textarea', label: 'What was a high point from today?', placeholder: '' },
+            plan_tomorrow:            { type: 'textarea', label: 'What do you plan to do tomorrow?', placeholder: '' },
+            longer_term_plans:        { type: 'textarea', label: 'Longer term plans that are on your mind?', placeholder: '' }
         };
 
         function autoResizeTextarea(el) {
@@ -913,7 +946,31 @@
 
             let html = '';
 
-            // Exercises
+            // ── Hours of Sleep + Body Weight (same line, above everything) ──
+            const bwDisplay = entry.body_weight != null ? toDisplayWeight(entry.body_weight) : '';
+            const bwPrev = getPreviousValue('body_weight', currentDateKey);
+            const bwPrevDisplay = bwPrev !== '' ? toDisplayWeight(bwPrev) : '';
+
+            html += `
+                <div class="form-section" style="margin-bottom: 18px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 420px;">
+                        <div class="field-group">
+                            <label>Hours of Sleep</label>
+                            <input type="text" inputmode="decimal" id="hours_of_sleep"
+                            value="${entry.hours_of_sleep != null ? entry.hours_of_sleep : ''}"
+                            placeholder="${fields.hours_of_sleep.placeholder || ''}">
+                        </div>
+                        <div class="field-group">
+                            <label>Body Weight (${unit})</label>
+                            <input type="text" inputmode="decimal" id="body_weight"
+                                   value="${bwDisplay}"
+                                   placeholder="${bwPrevDisplay || getPlaceholderDisplay('body_weight')}">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // ── Exercises ───────────────────────────────────────────────────
             html += `
                 <div class="form-section">
                     <div class="section-title">💪 Exercises</div>
@@ -975,17 +1032,21 @@
                     <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
                         <div class="field-group">
                             <label>Standard</label>
-                            <input type="text" inputmode="numeric" id="pushups_standard_reps" value="${entry.pushups_standard_reps != null ? entry.pushups_standard_reps : ''}" placeholder="${pushStandardPrev || getPlaceholderDisplay('pushups_standard_reps')}">
+                            <input type="text" inputmode="numeric" id="pushups_standard_reps"
+                                   value="${entry.pushups_standard_reps != null ? entry.pushups_standard_reps : ''}"
+                                   placeholder="${pushStandardPrev || getPlaceholderDisplay('pushups_standard_reps')}">
                         </div>
                         <div class="field-group">
                             <label>Tricep</label>
-                            <input type="text" inputmode="numeric" id="pushups_tricep_reps" value="${entry.pushups_tricep_reps != null ? entry.pushups_tricep_reps : ''}" placeholder="${pushTricepPrev || getPlaceholderDisplay('pushups_tricep_reps')}">
+                            <input type="text" inputmode="numeric" id="pushups_tricep_reps"
+                                   value="${entry.pushups_tricep_reps != null ? entry.pushups_tricep_reps : ''}"
+                                   placeholder="${pushTricepPrev || getPlaceholderDisplay('pushups_tricep_reps')}">
                         </div>
                     </div>
                 </div>
             `;
 
-            html += '</div></div>';
+            html += '</div></div>'; // close Upper Body
 
             // Abs / Core
             html += `
@@ -1011,28 +1072,25 @@
                 html += `
                     <div class="field-group">
                         <label>${ex.label}</label>
-                        <input type="text" id="${ex.key}" value="${entry[ex.key] != null ? entry[ex.key] : ''}" placeholder="${prev || getPlaceholderDisplay(ex.key)}">
+                        <input type="text" id="${ex.key}"
+                               value="${entry[ex.key] != null ? entry[ex.key] : ''}"
+                               placeholder="${prev || getPlaceholderDisplay(ex.key)}">
                     </div>
                 `;
             }
 
-            html += '</div></div>';
+            html += '</div></div>'; // close Abs
 
-            // Cardio + Body Weight
-            const bwDisplay = entry.body_weight != null ? toDisplayWeight(entry.body_weight) : '';
-            const bwPrev = getPreviousValue('body_weight', currentDateKey);
-            const bwPrevDisplay = bwPrev !== '' ? toDisplayWeight(bwPrev) : '';
+            // Cardio
             html += `
                     <div style="margin-bottom: 20px;">
                         <div style="font-size: 14px; font-weight: 600; margin-bottom: 10px; color: #ddd;">Cardio</div>
                         <div class="cardio-grid">
                             <div class="field-group">
                                 <label>Elliptical / Bike (min)</label>
-                                <input type="text" inputmode="decimal" id="elliptical_bike_time" value="${entry.elliptical_bike_time != null ? entry.elliptical_bike_time : ''}" placeholder="${getPreviousValue('elliptical_bike_time', currentDateKey) || getPlaceholderDisplay('elliptical_bike_time')}">
-                            </div>
-                            <div class="field-group">
-                                <label>Body Weight (${unit})</label>
-                                <input type="text" inputmode="decimal" id="body_weight" value="${bwDisplay}" placeholder="${bwPrevDisplay || getPlaceholderDisplay('body_weight')}">
+                                <input type="text" inputmode="decimal" id="elliptical_bike_time"
+                                       value="${entry.elliptical_bike_time != null ? entry.elliptical_bike_time : ''}"
+                                       placeholder="${getPreviousValue('elliptical_bike_time', currentDateKey) || getPlaceholderDisplay('elliptical_bike_time')}">
                             </div>
                         </div>
                     </div>
@@ -1045,28 +1103,20 @@
 
             html += '</div>'; // close Exercises form-section
 
-            // Progress Graphs
+            // ── Progress Graphs ─────────────────────────────────────────────
             html += `
                 <div class="form-section">
                     <div class="section-title">📈 Progress Over Time</div>
                     <div class="charts-row">
-                        <div class="chart-container">
-                            <canvas id="workChart" height="260"></canvas>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="caloriesChart" height="260"></canvas>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="alcoholChart" height="260"></canvas>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="bodyWeightChart" height="260"></canvas>
-                        </div>
+                        <div class="chart-container"><canvas id="workChart" height="260"></canvas></div>
+                        <div class="chart-container"><canvas id="caloriesChart" height="260"></canvas></div>
+                        <div class="chart-container"><canvas id="alcoholChart" height="260"></canvas></div>
+                        <div class="chart-container"><canvas id="bodyWeightChart" height="260"></canvas></div>
                     </div>
                 </div>
             `;
 
-            // Meals
+            // ── Meals ───────────────────────────────────────────────────────
             html += `
                 <div class="form-section">
                     <div class="section-title">🍽️ Meals</div>
@@ -1089,29 +1139,37 @@
                     <div class="meal-row">
                         <div class="field-group">
                             <label>${fields[foodField].label}</label>
-                            <input type="text" id="${foodField}" value="${entry[foodField] || ''}" placeholder="${foodPrev || fields[foodField].placeholder}">
+                            <input type="text" id="${foodField}"
+                                   value="${entry[foodField] || ''}"
+                                   placeholder="${foodPrev || fields[foodField].placeholder}">
                         </div>
                         <div class="field-group">
                             <label>${fields[calField].label}</label>
-                            <input type="text" inputmode="numeric" id="${calField}" value="${entry[calField] != null ? entry[calField] : ''}" placeholder="${calPrev || fields[calField].placeholder}">
+                            <input type="text" inputmode="numeric" id="${calField}"
+                                   value="${entry[calField] != null ? entry[calField] : ''}"
+                                   placeholder="${calPrev || fields[calField].placeholder}">
                         </div>
                     </div>
                 `;
             }
 
-            // Alcohol servings
-            const alcoholPrev = getPreviousValue('alcohol_servings', currentDateKey);
+            // Alcohol – always placeholder "0"
             html += `
                 <div class="field-group" style="max-width: 200px;">
                     <label>${fields.alcohol_servings.label}</label>
-                    <input type="text" inputmode="numeric" id="alcohol_servings" value="${entry.alcohol_servings != null ? entry.alcohol_servings : ''}" placeholder="${alcoholPrev !== '' ? alcoholPrev : fields.alcohol_servings.placeholder}">
+                    <input type="text" inputmode="numeric" id="alcohol_servings"
+                           value="${entry.alcohol_servings != null ? entry.alcohol_servings : ''}"
+                           placeholder="0">
                 </div>
             `;
 
             html += '</div></div>';
 
-            const journalFields = ['what_did_you_do', 'what_did_you_accomplish', 'work', 'for_you_fam',
-                                 'high_point', 'plan_tomorrow', 'longer_term_plans'];
+            // ── Journal ─────────────────────────────────────────────────────
+            const journalFields = [
+                'what_did_you_do', 'what_did_you_accomplish', 'work',
+                'for_you_fam', 'high_point', 'plan_tomorrow', 'longer_term_plans'
+            ];
 
             html += `
                 <div class="form-section">
@@ -1142,9 +1200,8 @@
 
             container.innerHTML = html;
             document.getElementById('currentDateDisplay').textContent = formatDisplayDate(currentDateKey);
-            // Auto-resize all textareas after render
             document.querySelectorAll('textarea').forEach(autoResizeTextarea);
-            renderCharts(true); // true = first appearance, no animation from 0
+            renderCharts(true);
         }
 
         let bodyWeightChartInstance = null;
