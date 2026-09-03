@@ -639,34 +639,34 @@
         // Single source of truth for fallback placeholders (weights stored in kg)
         const PLACEHOLDERS = {
             shoulders_weight: 7.5,          // per hand
-            shoulders_reps: 10,
+            shoulders_reps: 8,              // per side
 
-            military_press_weight: 15,          // per hand
-            military_press_reps: 8,
+            military_press_weight: 15,      // per hand
+            military_press_reps: 10,
 
-            curls_weight: 15,          // per hand
-            curls_reps: 8,
+            curls_weight: 15,               // per hand
+            curls_reps: 8,                  // per side
 
             tricep_curls_weight: 20,
             tricep_curls_reps: 10,
 
-            chest_flies_weight: 10,          // per hand
+            chest_flies_weight: 10,         // per hand
             chest_flies_reps: 10,
 
-            chest_presses_weight: 20,
+            chest_presses_weight: 10,
             chest_presses_reps: 10,
 
             pushups_standard_reps: 15,
-            pushups_tricep_reps: 5,
+            pushups_tricep_reps: 0,
 
             crunches_reps: 100,
-            crossing_crunches_reps: 35,
+            crossing_crunches_reps: 50,
             inclined_situps_reps: 10,
             leg_lifts_reps: 25,
-            scissor_kicks_reps: 25,
+            scissor_kicks_reps: 30,
             butterfly_kicks_reps: 100,
             bicycle_twists_reps: 100,
-            plank_time: '0:30',
+            plank_time: '1:00',
             inverted_plank_time: '0:30',
 
             elliptical_bike_time: '30',
@@ -675,7 +675,11 @@
 
         const PER_HAND_FIELDS = [
             'shoulders_weight', 'military_press_weight',
-            'curls_weight', 'chest_flies_weight'
+            'curls_weight', 'chest_flies_weight', 'chest_presses_weight'
+        ];
+
+        const PER_SIDE_REPS = [ 
+            'shoulders_reps', 'curls_reps'
         ];
 
         const WEIGHT_REP_PAIRS = {
@@ -997,14 +1001,29 @@
             for (let ex of upperBody) {
                 const wPrev = getPreviousValue(ex.w, currentDateKey);
                 const rPrev = getPreviousValue(ex.r, currentDateKey);
-                const displayW = entry[ex.w] != null ? toDisplayWeight(entry[ex.w]) : '';
-                const displayPrevW = wPrev !== '' ? toDisplayWeight(wPrev) : '';
-                const fallbackW = getPlaceholderDisplay(ex.w);
-                const fallbackR = getPlaceholderDisplay(ex.r);
 
-                let weightPlaceholder = displayPrevW || fallbackW;
+                // Prefer stored value → otherwise use the default number (so it is really typed in)
+                let displayW = entry[ex.w] != null ? toDisplayWeight(entry[ex.w]) : '';
+                if (displayW === '') {
+                    const fallbackNum = getPlaceholderDisplay(ex.w).replace(/ per hand$/, '');
+                    displayW = fallbackNum;
+                }
+
+                let displayR = entry[ex.r] != null ? entry[ex.r] : '';
+                if (displayR === '') {
+                    displayR = getPlaceholderDisplay(ex.r);
+                }
+
+                // Build weight placeholder (still shown as grey text)
+                let weightPlaceholder = (wPrev !== '' ? toDisplayWeight(wPrev) : getPlaceholderDisplay(ex.w));
                 if (PER_HAND_FIELDS.includes(ex.w) && weightPlaceholder && !String(weightPlaceholder).includes('per hand')) {
                     weightPlaceholder += ' per hand';
+                }
+
+                // Build reps placeholder
+                let repsPlaceholder = rPrev || getPlaceholderDisplay(ex.r);
+                if (PER_SIDE_REPS.includes(ex.r) && repsPlaceholder && !String(repsPlaceholder).includes('per side')) {
+                    repsPlaceholder += ' per side';
                 }
 
                 html += `
@@ -1013,19 +1032,31 @@
                         <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
                             <div class="field-group">
                                 <label>Weight (${unit})</label>
-                                <input type="text" inputmode="decimal" id="${ex.w}" value="${displayW}" placeholder="${weightPlaceholder}">
+                                <input type="text" inputmode="decimal" id="${ex.w}"
+                                    value="${displayW}"
+                                    placeholder="${weightPlaceholder}">
                             </div>
                             <div class="field-group">
                                 <label>Reps</label>
-                                <input type="text" inputmode="numeric" id="${ex.r}" value="${entry[ex.r] != null ? entry[ex.r] : ''}" placeholder="${rPrev || fallbackR}">
+                                <input type="text" inputmode="numeric" id="${ex.r}"
+                                    value="${displayR}"
+                                    placeholder="${repsPlaceholder}">
                             </div>
                         </div>
                     </div>
                 `;
             }
 
+            // Pushups (same pre-fill idea)
             const pushStandardPrev = getPreviousValue('pushups_standard_reps', currentDateKey);
-            const pushTricepPrev = getPreviousValue('pushups_tricep_reps', currentDateKey);
+            const pushTricepPrev   = getPreviousValue('pushups_tricep_reps', currentDateKey);
+
+            let pushStandardVal = entry.pushups_standard_reps != null ? entry.pushups_standard_reps : '';
+            if (pushStandardVal === '') pushStandardVal = getPlaceholderDisplay('pushups_standard_reps');
+
+            let pushTricepVal = entry.pushups_tricep_reps != null ? entry.pushups_tricep_reps : '';
+            if (pushTricepVal === '') pushTricepVal = getPlaceholderDisplay('pushups_tricep_reps');
+
             html += `
                 <div class="ex-card">
                     <div class="ex-card-title">Pushups</div>
@@ -1033,14 +1064,14 @@
                         <div class="field-group">
                             <label>Standard</label>
                             <input type="text" inputmode="numeric" id="pushups_standard_reps"
-                                   value="${entry.pushups_standard_reps != null ? entry.pushups_standard_reps : ''}"
-                                   placeholder="${pushStandardPrev || getPlaceholderDisplay('pushups_standard_reps')}">
+                                value="${pushStandardVal}"
+                                placeholder="${pushStandardPrev || getPlaceholderDisplay('pushups_standard_reps')}">
                         </div>
                         <div class="field-group">
                             <label>Tricep</label>
                             <input type="text" inputmode="numeric" id="pushups_tricep_reps"
-                                   value="${entry.pushups_tricep_reps != null ? entry.pushups_tricep_reps : ''}"
-                                   placeholder="${pushTricepPrev || getPlaceholderDisplay('pushups_tricep_reps')}">
+                                value="${pushTricepVal}"
+                                placeholder="${pushTricepPrev || getPlaceholderDisplay('pushups_tricep_reps')}">
                         </div>
                     </div>
                 </div>
@@ -1069,12 +1100,15 @@
 
             for (let ex of absExercises) {
                 const prev = getPreviousValue(ex.key, currentDateKey);
+                let val = entry[ex.key] != null ? entry[ex.key] : '';
+                if (val === '') val = getPlaceholderDisplay(ex.key);   // pre-fill the default
+
                 html += `
                     <div class="field-group">
                         <label>${ex.label}</label>
                         <input type="text" id="${ex.key}"
-                               value="${entry[ex.key] != null ? entry[ex.key] : ''}"
-                               placeholder="${prev || getPlaceholderDisplay(ex.key)}">
+                            value="${val}"
+                            placeholder="${prev || getPlaceholderDisplay(ex.key)}">
                     </div>
                 `;
             }
@@ -1134,31 +1168,39 @@
                 const calField = pair[1];
                 const foodPrev = getPreviousValue(foodField, currentDateKey);
                 const calPrev = getPreviousValue(calField, currentDateKey);
+                let foodVal = entry[foodField] || '';
+                let calVal  = entry[calField] != null ? entry[calField] : '';
+
+                // Breakfast special defaults
+                if (foodField === 'breakfast') {
+                    if (foodVal === '') foodVal = 'None';
+                    if (calVal  === '') calVal  = '0';
+                }
 
                 html += `
                     <div class="meal-row">
                         <div class="field-group">
                             <label>${fields[foodField].label}</label>
                             <input type="text" id="${foodField}"
-                                   value="${entry[foodField] || ''}"
-                                   placeholder="${foodPrev || fields[foodField].placeholder}">
+                                value="${foodVal}"
+                                placeholder="${foodPrev || fields[foodField].placeholder}">
                         </div>
                         <div class="field-group">
                             <label>${fields[calField].label}</label>
                             <input type="text" inputmode="numeric" id="${calField}"
-                                   value="${entry[calField] != null ? entry[calField] : ''}"
-                                   placeholder="${calPrev || fields[calField].placeholder}">
+                                value="${calVal}"
+                                placeholder="${calPrev || fields[calField].placeholder}">
                         </div>
                     </div>
                 `;
             }
 
-            // Alcohol – always placeholder "0"
+            // Alcohol – default value "0" and placeholder "0"
             html += `
                 <div class="field-group" style="max-width: 200px;">
                     <label>${fields.alcohol_servings.label}</label>
                     <input type="text" inputmode="numeric" id="alcohol_servings"
-                           value="${entry.alcohol_servings != null ? entry.alcohol_servings : ''}"
+                           value="${entry.alcohol_servings != null && entry.alcohol_servings !== '' ? entry.alcohol_servings : '0'}"
                            placeholder="0">
                 </div>
             `;
