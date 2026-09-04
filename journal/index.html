@@ -834,58 +834,92 @@
             setTimeout(() => t.classList.remove('show'), 2400);
         }
 
-        function renderSidebar(initialLoad = false) {
-            const dateList = document.getElementById('dateList');
-            dateList.innerHTML = '';
+        function ensureEntryDefaults(dateKey) {
+    if (!journalData[dateKey]) {
+        journalData[dateKey] = {};
+    }
 
-            const today = new Date();
-            const oldestDate = new Date(2026, 6, 22);
-            let currentGenDate = new Date(oldestDate);
-            const maxDays = 90;
-            let items = [];
+    const entry = journalData[dateKey];
 
-            for (let i = 0; i < maxDays; i++) {
-                const dateKey = formatDateKey(currentGenDate);
-                const display = formatDisplayDate(dateKey);
-                const isFuture = currentGenDate > today;
-                const entry = journalData[dateKey] || {};
-                const status = getEntryStatus(entry);
-
-                const item = document.createElement('div');
-                item.className = `date-item ${status}`;
-                if (dateKey === currentDateKey) item.classList.add('current');
-                if (isFuture) item.classList.add('future');
-
-                item.innerHTML = `
-                    <span>${display}</span>
-                    <span style="font-size: 12px; color: #666;">${dateKey}</span>
-                `;
-
-                if (!isFuture) {
-                    item.addEventListener('click', () => {
-                        currentDateKey = dateKey;
-                        renderForm();
-                        renderSidebar(false);
-                        closeMobileMenu();
-                    });
-                }
-
-                items.push(item);
-                currentGenDate.setDate(currentGenDate.getDate() + 1);
-            }
-
-            items.forEach(item => dateList.appendChild(item));
-
-            if (initialLoad) {
-                setTimeout(() => {
-                    const currentItem = dateList.querySelector('.current');
-                    if (currentItem) {
-                        const index = Array.from(dateList.children).indexOf(currentItem);
-                        dateList.scrollTop = Math.max(0, index * 48 - 700);
-                    }
-                }, 100);
-            }
+    // Materialize every default from PLACEHOLDERS as an actual stored value.
+    // Stored weights remain in kg, just like the rest of journalData.
+    Object.entries(PLACEHOLDERS).forEach(([key, value]) => {
+        if (entry[key] === undefined || entry[key] === null || entry[key] === '') {
+            entry[key] = value;
         }
+    });
+
+    // Breakfast has a default even though it isn't in PLACEHOLDERS.
+    if (entry.breakfast === undefined || entry.breakfast === null || entry.breakfast === '') {
+        entry.breakfast = 'None';
+    }
+
+    if (entry.breakfast_calories === undefined || entry.breakfast_calories === null || entry.breakfast_calories === '') {
+        entry.breakfast_calories = 0;
+    }
+
+    // Alcohol also has an explicit default of 0.
+    if (entry.alcohol_servings === undefined || entry.alcohol_servings === null || entry.alcohol_servings === '') {
+        entry.alcohol_servings = 0;
+    }
+}
+function renderSidebar(initialLoad = false) {
+    const dateList = document.getElementById('dateList');
+    dateList.innerHTML = '';
+
+    const today = new Date();
+    const oldestDate = new Date(2026, 6, 22);
+    let currentGenDate = new Date(oldestDate);
+    const maxDays = 90;
+    let items = [];
+
+    for (let i = 0; i < maxDays; i++) {
+        const dateKey = formatDateKey(currentGenDate);
+        const display = formatDisplayDate(dateKey);
+        const isFuture = currentGenDate > today;
+        const entry = journalData[dateKey] || {};
+        const status = getEntryStatus(entry);
+
+        const item = document.createElement('div');
+        item.className = `date-item ${status}`;
+        if (dateKey === currentDateKey) item.classList.add('current');
+        if (isFuture) item.classList.add('future');
+
+        item.innerHTML = `
+            <span>${display}</span>
+            <span style="font-size: 12px; color: #666;">${dateKey}</span>
+        `;
+
+        if (!isFuture) {
+            item.addEventListener('click', () => {
+                currentDateKey = dateKey;
+
+                // Defaults are real data, not just visual placeholders.
+                ensureEntryDefaults(currentDateKey);
+                saveData();
+
+                renderForm();
+                renderSidebar(false);
+                closeMobileMenu();
+            });
+        }
+
+        items.push(item);
+        currentGenDate.setDate(currentGenDate.getDate() + 1);
+    }
+
+    items.forEach(item => dateList.appendChild(item));
+
+    if (initialLoad) {
+        setTimeout(() => {
+            const currentItem = dateList.querySelector('.current');
+            if (currentItem) {
+                const index = Array.from(dateList.children).indexOf(currentItem);
+                dateList.scrollTop = Math.max(0, index * 48 - 700);
+            }
+        }, 100);
+    }
+}
 
         function getEntryStatus(entry) {
             if (!entry || Object.keys(entry).length === 0) return 'empty';
@@ -1889,22 +1923,29 @@
             });
         }
 
-        function init() {
-            loadData();
-            renderSidebar(true);
-            renderForm();
-            setupAutoSave();
-            setupMenu();
 
-            document.addEventListener('keydown', (e) => {
-                if (e.ctrlKey && e.key === 's') {
-                    e.preventDefault();
-                    saveCurrentEntry();
-                }
-            });
+function init() {
+    loadData();
+
+    // Make today's displayed defaults actual stored values immediately.
+    ensureEntryDefaults(currentDateKey);
+    saveData();
+
+    renderSidebar(true);
+    renderForm();
+    setupAutoSave();
+    setupMenu();
+
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            saveCurrentEntry();
         }
+    });
+}
 
-        window.onload = init;
+window.onload = init;
+
     </script>
 </body>
 </html>
