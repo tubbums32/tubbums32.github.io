@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,1943 +10,2211 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-        :root {
-            --bg: #0a0a0a;
-            --sidebar-bg: #111111;
-            --card-bg: #1a1a1a;
-            --text: #e0e0e0;
-            --text-muted: #888888;
-            --accent: #3b82f6;
-            --border: #333333;
-            --success: #22c55e;
+    :root {
+        --bg: #0a0a0a;
+        --sidebar-bg: #111111;
+        --card-bg: #1a1a1a;
+        --text: #e0e0e0;
+        --text-muted: #888888;
+        --accent: #3b82f6;
+        --border: #333333;
+        --success: #22c55e;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', system-ui, sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        display: flex;
+        height: 100dvh;
+        overflow: hidden;
+        -webkit-tap-highlight-color: transparent;
+        font-size: 14px;
+    }
+
+    /* ========== SIDEBAR ========== */
+    .sidebar {
+        width: 260px;
+        background-color: var(--sidebar-bg);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        flex-shrink: 0;
+        transition: transform 0.25s ease;
+        z-index: 210;
+        position: relative;
+    }
+
+    .sidebar-header {
+        padding: 14px 14px;
+        border-bottom: 1px solid var(--border);
+        font-weight: 600;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    .sidebar-hamburger {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 6px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        border-radius: 6px;
+        transition: background 0.2s;
+    }
+
+    .sidebar-hamburger:hover {
+        background: #222;
+    }
+
+    .sidebar-hamburger span {
+        display: block;
+        width: 18px;
+        height: 2px;
+        background: var(--text);
+        border-radius: 1px;
+    }
+
+    /* Dropdown menu (desktop-style, attached to sidebar hamburger) */
+    .menu-dropdown {
+        position: absolute;
+        top: 52px;
+        left: 10px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 6px;
+        min-width: 190px;
+        z-index: 1000;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+        display: none;
+    }
+
+    .menu-dropdown.open {
+        display: block;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 11px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        color: var(--text);
+        transition: background 0.15s;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        font-family: inherit;
+    }
+
+    .menu-item:hover, .menu-item:active {
+        background: #2a2a2a;
+    }
+
+    .menu-item .toggle-label {
+        margin-left: auto;
+        font-size: 11px;
+        color: var(--accent);
+        font-weight: 600;
+    }
+
+    /* Mobile-only action list inside sidebar (hidden on desktop) */
+    .menu-actions-mobile {
+        display: none;
+        padding: 8px;
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        gap: 2px;
+        flex-shrink: 0;
+    }
+
+    .date-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px 8px 16px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .date-item {
+        padding: 9px 12px;
+        margin: 2px 0;
+        border-radius: 7px;
+        cursor: pointer;
+        transition: all 0.15s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+    }
+
+    .date-item:hover {
+        background-color: #222222;
+    }
+
+    .date-item.current {
+        background-color: #1f1f1f;
+        border: 1px solid var(--accent);
+    }
+
+    .date-item.future {
+        opacity: 0.12;
+        cursor: default;
+    }
+
+    .menu-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.55);
+        z-index: 200;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .menu-overlay.open {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* ========== MAIN ========== */
+    .main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-width: 0;
+    }
+
+    .header {
+        padding-top: max(12px, env(safe-area-inset-top));
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: var(--card-bg);
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    /* Header hamburger only on mobile */
+    .header-hamburger {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 6px;
+        display: none;
+        flex-direction: column;
+        gap: 4px;
+        border-radius: 6px;
+    }
+
+    .header-hamburger:active {
+        background: #222;
+    }
+
+    .header-hamburger span {
+        display: block;
+        width: 18px;
+        height: 2px;
+        background: var(--text);
+        border-radius: 1px;
+    }
+
+    .header h1 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .current-date {
+        font-size: 0.8rem;
+        color: var(--accent);
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 4px 11px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .content {
+        flex: 1;
+        padding: 16px 16px 32px;
+        overflow-y: auto;
+        background-color: var(--bg);
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .form-section {
+        margin-bottom: 28px;
+    }
+
+    .section-title {
+        font-size: 0.9rem;
+        margin-bottom: 12px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--border);
+        color: var(--accent);
+        font-weight: 600;
+    }
+
+    .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    label {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    input, textarea {
+        background-color: #222222;
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 9px 10px;
+        border-radius: 7px;
+        font-size: 13px;
+        transition: border 0.2s;
+        width: 100%;
+        font-family: inherit;
+    }
+
+    input:focus, textarea:focus {
+        border-color: var(--accent);
+        outline: none;
+    }
+
+    input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--accent);
+        cursor: pointer;
+        padding: 0;
+    }
+
+    textarea {
+        min-height: 70px;
+        resize: vertical;
+        overflow-y: hidden;
+        line-height: 1.4;
+        font-size: 14px;
+    }
+
+    textarea.auto-grow {
+        min-height: 90px;
+        max-height: none;
+        overflow-y: hidden;
+        resize: none;
+    }
+
+    .meal-row {
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        gap: 10px;
+    }
+
+    .charts-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    .chart-container {
+        background: var(--card-bg);
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        height: 280px;
+        position: relative;
+        min-width: 0;
+    }
+
+    .chart-container canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .stretch-check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-size: 13px;
+        color: #ddd;
+        font-weight: 500;
+        user-select: none;
+        padding: 8px 10px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+    }
+
+    .stretch-check input {
+        margin: 0;
+    }
+
+    .ex-card {
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 11px;
+        background: #1f1f1f;
+    }
+
+    .ex-card-title {
+        font-weight: 600;
+        margin-bottom: 9px;
+        color: #ccc;
+        font-size: 0.85rem;
+    }
+
+    .ex-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 10px;
+    }
+
+    .abs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+    }
+
+    .cardio-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+    }
+
+    .meals-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 12px;
+    }
+
+    .toast {
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-200%);
+        background: var(--success);
+        color: #fff;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        z-index: 400;
+        transition: transform 0.3s ease;
+        pointer-events: none;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        max-width: 90vw;
+        text-align: center;
+    }
+
+    .toast.show {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.error {
+        background: #ef4444;
+    }
+
+
+    /* ========== PASTE MODAL ========== */
+    .paste-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 3000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.18s ease, visibility 0.18s ease;
+    }
+
+    .paste-modal-overlay.open {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .paste-modal {
+        width: min(560px, 100%);
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+        padding: 20px;
+        transform: translateY(8px) scale(0.98);
+        transition: transform 0.18s ease;
+    }
+
+    .paste-modal-overlay.open .paste-modal {
+        transform: translateY(0) scale(1);
+    }
+
+    .paste-modal-title {
+        color: var(--text);
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 7px;
+    }
+
+    .paste-modal-description {
+        color: var(--text-muted);
+        font-size: 13px;
+        line-height: 1.5;
+        margin-bottom: 14px;
+    }
+
+    .paste-modal textarea {
+        display: block;
+        width: 100%;
+        min-height: 180px;
+        resize: vertical;
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 11px 12px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .paste-modal textarea:focus {
+        border-color: var(--accent);
+        outline: none;
+    }
+
+    .paste-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    .paste-modal-btn {
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 8px 14px;
+        font-family: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+    }
+
+    .paste-modal-cancel {
+        background: transparent;
+        color: var(--text-muted);
+    }
+
+    .paste-modal-cancel:hover {
+        background: #222;
+        color: var(--text);
+    }
+
+    .paste-modal-import {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+    }
+
+    .paste-modal-import:hover {
+        background: #2563eb;
+    }
+
+    @media (max-width: 768px) {
+        .paste-modal {
+            padding: 16px;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        .paste-modal textarea {
+            min-height: 220px;
         }
+    }
 
+    /* ========== MOBILE ========== */
+    @media (max-width: 768px) {
         body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            height: 100dvh;
-            overflow: hidden;
-            -webkit-tap-highlight-color: transparent;
-            font-size: 14px;
+            flex-direction: column;
         }
 
-        /* ========== SIDEBAR ========== */
         .sidebar {
-            width: 260px;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            flex-shrink: 0;
-            transition: transform 0.25s ease;
-            z-index: 210;
-            position: relative;
-        }
-
-        .sidebar-header {
-            padding: 14px 14px;
-            border-bottom: 1px solid var(--border);
-            font-weight: 600;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-shrink: 0;
-            position: relative;
-        }
-
-        .sidebar-hamburger {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 6px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            border-radius: 6px;
-            transition: background 0.2s;
-        }
-
-        .sidebar-hamburger:hover {
-            background: #222;
-        }
-
-        .sidebar-hamburger span {
-            display: block;
-            width: 18px;
-            height: 2px;
-            background: var(--text);
-            border-radius: 1px;
-        }
-
-        /* Dropdown menu (desktop-style, attached to sidebar hamburger) */
-        .menu-dropdown {
-            position: absolute;
-            top: 52px;
-            left: 10px;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 6px;
-            min-width: 190px;
-            z-index: 1000;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.45);
-            display: none;
-        }
-
-        .menu-dropdown.open {
-            display: block;
-        }
-
-        .menu-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 9px 11px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            color: var(--text);
-            transition: background 0.15s;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            font-family: inherit;
-        }
-
-        .menu-item:hover, .menu-item:active {
-            background: #2a2a2a;
-        }
-
-        .menu-item .toggle-label {
-            margin-left: auto;
-            font-size: 11px;
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        /* Mobile-only action list inside sidebar (hidden on desktop) */
-        .menu-actions-mobile {
-            display: none;
-            padding: 8px;
-            border-bottom: 1px solid var(--border);
-            flex-direction: column;
-            gap: 2px;
-            flex-shrink: 0;
-        }
-
-        .date-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 8px 8px 16px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .date-item {
-            padding: 9px 12px;
-            margin: 2px 0;
-            border-radius: 7px;
-            cursor: pointer;
-            transition: all 0.15s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-        }
-
-        .date-item:hover {
-            background-color: #222222;
-        }
-
-        .date-item.current {
-            background-color: #1f1f1f;
-            border: 1px solid var(--accent);
-        }
-
-        .date-item.future {
-            opacity: 0.12;
-            cursor: default;
-        }
-
-        .menu-overlay {
             position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.55);
-            z-index: 200;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.25s ease, visibility 0.25s ease;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 260px;
+            max-width: 85vw;
+            transform: translateX(-100%);
+            border-right: 1px solid var(--border);
+            box-shadow: 8px 0 24px rgba(0,0,0,0.4);
         }
 
-        .menu-overlay.open {
-            opacity: 1;
-            visibility: visible;
+        .sidebar.open {
+            transform: translateX(0);
         }
 
-        /* ========== MAIN ========== */
-        .main {
-            flex: 1;
+        /* On mobile the sidebar hamburger / desktop dropdown are unused */
+        .sidebar-hamburger {
+            display: none;
+        }
+
+        .menu-dropdown {
+            display: none !important;
+        }
+
+        /* Show the action list inside the slide-out */
+        .menu-actions-mobile {
             display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            min-width: 0;
+        }
+
+        .header-hamburger {
+            display: flex;
         }
 
         .header {
-            padding-top: max(12px, env(safe-area-inset-top));
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: var(--card-bg);
-            gap: 10px;
-            flex-shrink: 0;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            min-width: 0;
-        }
-
-        /* Header hamburger only on mobile */
-        .header-hamburger {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 6px;
-            display: none;
-            flex-direction: column;
-            gap: 4px;
-            border-radius: 6px;
-        }
-
-        .header-hamburger:active {
-            background: #222;
-        }
-
-        .header-hamburger span {
-            display: block;
-            width: 18px;
-            height: 2px;
-            background: var(--text);
-            border-radius: 1px;
+            padding: 10px 12px;
         }
 
         .header h1 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .current-date {
-            font-size: 0.8rem;
-            color: var(--accent);
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            padding: 4px 11px;
-            white-space: nowrap;
-            flex-shrink: 0;
+            font-size: 1rem;
         }
 
         .content {
-            flex: 1;
-            padding: 16px 16px 32px;
-            overflow-y: auto;
-            background-color: var(--bg);
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .form-section {
-            margin-bottom: 28px;
-        }
-
-        .section-title {
-            font-size: 0.9rem;
-            margin-bottom: 12px;
-            padding-bottom: 6px;
-            border-bottom: 1px solid var(--border);
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        .field-group {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        label {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        input, textarea {
-            background-color: #222222;
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 9px 10px;
-            border-radius: 7px;
-            font-size: 13px;
-            transition: border 0.2s;
-            width: 100%;
-            font-family: inherit;
-        }
-
-        input:focus, textarea:focus {
-            border-color: var(--accent);
-            outline: none;
-        }
-
-        input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            accent-color: var(--accent);
-            cursor: pointer;
-            padding: 0;
-        }
-
-        textarea {
-            min-height: 70px;
-            resize: vertical;
-            overflow-y: hidden;
-            line-height: 1.4;
-            font-size: 14px;
-        }
-
-        textarea.auto-grow {
-            min-height: 90px;
-            max-height: none;
-            overflow-y: hidden;
-            resize: none;
-        }
-
-        .meal-row {
-            display: grid;
-            grid-template-columns: 3fr 1fr;
-            gap: 10px;
-        }
-
-        .charts-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 12px;
-            margin-top: 12px;
-        }
-
-        .chart-container {
-            background: var(--card-bg);
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            height: 280px;          /* fixed height so Chart.js never clips */
-            position: relative;
-            min-width: 0;
-        }
-
-        .chart-container canvas {
-            width: 100% !important;
-            height: 100% !important;
-        }
-
-        #importFile {
-            display: none;
-        }
-
-        .stretch-check {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            font-size: 13px;
-            color: #ddd;
-            font-weight: 500;
-            user-select: none;
-            padding: 8px 10px;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-        }
-
-        .stretch-check input {
-            margin: 0;
-        }
-
-        .ex-card {
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 11px;
-            background: #1f1f1f;
-        }
-
-        .ex-card-title {
-            font-weight: 600;
-            margin-bottom: 9px;
-            color: #ccc;
-            font-size: 0.85rem;
+            padding: 12px 12px 28px;
         }
 
         .ex-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 10px;
+            grid-template-columns: 1fr;
         }
 
         .abs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
+            grid-template-columns: 1fr 1fr;
         }
 
-        .cardio-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 10px;
+        .charts-row {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-container {
+            height: 260px;
+        }
+
+        .meal-row {
+            grid-template-columns: 1fr;
         }
 
         .meals-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 12px;
+            grid-template-columns: 1fr;
         }
+    }
 
-        .toast {
-            position: fixed;
-            top: 16px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-200%);
-            background: var(--success);
-            color: #fff;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 0.85rem;
-            z-index: 400;
-            transition: transform 0.3s ease;
-            pointer-events: none;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-            max-width: 90vw;
-            text-align: center;
-        }
+    /* Desktop dropdown + mobile action list */
+    #exportTodayBtn,
+    #exportTodayBtnMobile {
+        background: var(--accent);
+        color: #fff;
+    }
 
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
+    #exportTodayBtn:hover,
+    #exportTodayBtnMobile:hover {
+        background: #2563eb;
+    }
 
-        .toast.error {
-            background: #ef4444;
-        }
+    #importBtn,
+    #importBtnMobile {
+        background: #2a2a2a;
+        color: var(--text);
+    }
 
-        /* ========== MOBILE ========== */
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100%;
-                width: 260px;
-                max-width: 85vw;
-                transform: translateX(-100%);
-                border-right: 1px solid var(--border);
-                box-shadow: 8px 0 24px rgba(0,0,0,0.4);
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            /* On mobile the sidebar hamburger / desktop dropdown are unused */
-            .sidebar-hamburger {
-                display: none;
-            }
-            .menu-dropdown {
-                display: none !important;
-            }
-
-            /* Show the action list inside the slide-out */
-            .menu-actions-mobile {
-                display: flex;
-            }
-
-            .header-hamburger {
-                display: flex;
-            }
-
-            .header {
-                padding: 10px 12px;
-            }
-
-            .header h1 {
-                font-size: 1rem;
-            }
-
-            .content {
-                padding: 12px 12px 28px;
-            }
-
-            .ex-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .abs-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .charts-row {
-                grid-template-columns: 1fr;
-            }
-
-            .chart-container {
-                height: 260px;   /* still tall enough that nothing is clipped */
-            }
-
-            .meal-row {
-                grid-template-columns: 1fr;
-            }
-
-            .meals-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Desktop dropdown + mobile action list */
-        #exportTodayBtn,
-        #exportTodayBtnMobile {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        #exportTodayBtn:hover,
-        #exportTodayBtnMobile:hover {
-            background: #2563eb;
-        }
-
-        #importBtn,
-        #importBtnMobile {
-            background: #2a2a2a;
-            color: var(--text);
-        }
-
-        #importBtn:hover,
-        #importBtnMobile:hover {
-            background: #333;
-        }
-    </style>
+    #importBtn:hover,
+    #importBtnMobile:hover {
+        background: #333;
+    }
+</style>
 </head>
+
 <body>
     <!-- Mobile menu overlay -->
     <div class="menu-overlay" id="menuOverlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <button class="sidebar-hamburger" id="sidebarHamburger" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <span>Journal Entries</span>
 
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <button class="sidebar-hamburger" id="sidebarHamburger" aria-label="Menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <span>Journal Entries</span>
-
-            <!-- Desktop dropdown -->
-            <div class="menu-dropdown" id="menuDropdown">
-                <button class="menu-item" id="unitToggleBtn">
-                    <span>Units</span>
-                    <span class="toggle-label" id="unitToggleLabel">Kg</span>
-                </button>
-                <button class="menu-item" id="exportTodayBtn">Copy Today</button>
-                <button class="menu-item" id="exportAllBtn">Copy All</button>
-                <button class="menu-item" id="importBtn">Import Data</button>
-            </div>
-        </div>
-
-        <!-- Mobile-only action list -->
-        <div class="menu-actions-mobile">
-            <button class="menu-item" id="unitToggleBtnMobile">
+        <!-- Desktop dropdown -->
+        <div class="menu-dropdown" id="menuDropdown">
+            <button class="menu-item" id="unitToggleBtn">
                 <span>Units</span>
-                <span class="toggle-label" id="unitToggleLabelMobile">Kg</span>
+                <span class="toggle-label" id="unitToggleLabel">Kg</span>
             </button>
-            <button class="menu-item" id="exportTodayBtnMobile">Copy Today</button>
-            <button class="menu-item" id="exportAllBtnMobile">Copy All</button>
-            <button class="menu-item" id="importBtnMobile">Import Data</button>
-        </div>
-
-        <input type="file" id="importFile" accept=".json,application/json">
-        <div class="date-list" id="dateList"></div>
-    </div>
-
-    <div class="main">
-        <div class="header">
-            <div class="header-left">
-                <button class="header-hamburger" id="headerHamburger" aria-label="Menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-                <h1>Daily Journal</h1>
-            </div>
-            <div class="current-date" id="currentDateDisplay"></div>
-        </div>
-
-        <div class="content" id="contentArea">
-            <div id="formContainer"></div>
+            <button class="menu-item" id="exportTodayBtn">Copy Today</button>
+            <button class="menu-item" id="exportAllBtn">Copy All</button>
+            <button class="menu-item" id="importBtn">Import Data</button>
         </div>
     </div>
 
-    <div class="toast" id="toast"></div>
+    <!-- Mobile-only action list -->
+    <div class="menu-actions-mobile">
+        <button class="menu-item" id="unitToggleBtnMobile">
+            <span>Units</span>
+            <span class="toggle-label" id="unitToggleLabelMobile">Kg</span>
+        </button>
+        <button class="menu-item" id="exportTodayBtnMobile">Copy Today</button>
+        <button class="menu-item" id="exportAllBtnMobile">Copy All</button>
+        <button class="menu-item" id="importBtnMobile">Import Data</button>
+    </div>
 
-    <script>
-        function formatDateKey(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+    <div class="date-list" id="dateList"></div>
+</div>
+
+<div class="main">
+    <div class="header">
+        <div class="header-left">
+            <button class="header-hamburger" id="headerHamburger" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1>Daily Journal</h1>
+        </div>
+        <div class="current-date" id="currentDateDisplay"></div>
+    </div>
+
+    <div class="content" id="contentArea">
+        <div id="formContainer"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="paste-modal-overlay" id="pasteModalOverlay">
+    <div class="paste-modal" role="dialog" aria-modal="true" aria-labelledby="pasteModalTitle">
+        <div class="paste-modal-title" id="pasteModalTitle">Import Journal Data</div>
+        <div class="paste-modal-description">
+            Paste your journal data below.
+        </div>
+        <textarea id="pasteModalInput" spellcheck="false" autocomplete="off"></textarea>
+        <div class="paste-modal-actions">
+            <button class="paste-modal-btn paste-modal-cancel" id="pasteModalCancel">Cancel</button>
+            <button class="paste-modal-btn paste-modal-import" id="pasteModalImport">Import</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function formatDateKey(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function formatDisplayDate(dateStr) {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+        return date.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+
+    let journalData = {};
+    let currentDateKey = formatDateKey(new Date());
+    let useLbs = false;
+
+    const KG_TO_LBS = 2.20462;
+    const LBS_TO_KG = 1 / KG_TO_LBS;
+
+    const PLACEHOLDERS = {
+        shoulders_weight: 7.5,
+        shoulders_reps: 8,
+        military_press_weight: 15,
+        military_press_reps: 10,
+        curls_weight: 15,
+        curls_reps: 8,
+        tricep_curls_weight: 20,
+        tricep_curls_reps: 10,
+        chest_flies_weight: 10,
+        chest_flies_reps: 10,
+        chest_presses_weight: 10,
+        chest_presses_reps: 10,
+        pushups_standard_reps: 15,
+        pushups_tricep_reps: 0,
+        crunches_reps: 100,
+        crossing_crunches_reps: 50,
+        inclined_situps_reps: 10,
+        leg_lifts_reps: 25,
+        scissor_kicks_reps: 30,
+        butterfly_kicks_reps: 100,
+        bicycle_twists_reps: 100,
+        plank_time: '1:00',
+        inverted_plank_time: '0:30',
+        elliptical_bike_time: '30',
+        body_weight: 70
+    };
+
+    const PER_HAND_FIELDS = [
+        'shoulders_weight', 'military_press_weight',
+        'curls_weight', 'chest_flies_weight', 'chest_presses_weight'
+    ];
+
+    const PER_SIDE_REPS = [
+        'shoulders_reps', 'curls_reps'
+    ];
+
+    const WEIGHT_REP_PAIRS = {
+        shoulders_weight: 'shoulders_reps',
+        military_press_weight: 'military_press_reps',
+        curls_weight: 'curls_reps',
+        tricep_curls_weight: 'tricep_curls_reps',
+        chest_flies_weight: 'chest_flies_reps',
+        chest_presses_weight: 'chest_presses_reps'
+    };
+
+    const TIME_FIELDS = ['plank_time', 'inverted_plank_time'];
+
+    function loadData() {
+        const saved = localStorage.getItem('journalData');
+        if (saved) journalData = JSON.parse(saved);
+
+        if (typeof journalData.longer_term_plans === 'undefined') {
+            journalData.longer_term_plans = '';
         }
 
-        function formatDisplayDate(dateStr) {
-            const [year, month, day] = dateStr.split('-').map(Number);
-            const date = new Date(year, month - 1, day);
-            return date.toLocaleDateString('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric'
-            });
-        }
+        const unitPref = localStorage.getItem('journalUnit');
+        if (unitPref === 'lbs') useLbs = true;
+    }
 
-        let journalData = {};
-        let currentDateKey = formatDateKey(new Date());
-        let useLbs = false; // false = kg, true = lbs
+    function saveData() {
+        localStorage.setItem('journalData', JSON.stringify(journalData));
+        localStorage.setItem('journalUnit', useLbs ? 'lbs' : 'kg');
+    }
 
-        const KG_TO_LBS = 2.20462;
-        const LBS_TO_KG = 1 / KG_TO_LBS;
+    function getPreviousValue(fieldKey, currentDate) {
+        if (fieldKey === 'longer_term_plans') return '';
 
-        // Single source of truth for fallback placeholders (weights stored in kg)
-        const PLACEHOLDERS = {
-            shoulders_weight: 7.5,          // per hand
-            shoulders_reps: 8,              // per side
+        const dates = Object.keys(journalData).sort().reverse();
 
-            military_press_weight: 15,      // per hand
-            military_press_reps: 10,
+        for (let date of dates) {
+            if (date < currentDate && journalData[date] && journalData[date][fieldKey] !== undefined) {
+                const val = journalData[date][fieldKey];
+                const cleaned = typeof val === 'string' ? val.trim() : val;
 
-            curls_weight: 15,               // per hand
-            curls_reps: 8,                  // per side
-
-            tricep_curls_weight: 20,
-            tricep_curls_reps: 10,
-
-            chest_flies_weight: 10,         // per hand
-            chest_flies_reps: 10,
-
-            chest_presses_weight: 10,
-            chest_presses_reps: 10,
-
-            pushups_standard_reps: 15,
-            pushups_tricep_reps: 0,
-
-            crunches_reps: 100,
-            crossing_crunches_reps: 50,
-            inclined_situps_reps: 10,
-            leg_lifts_reps: 25,
-            scissor_kicks_reps: 30,
-            butterfly_kicks_reps: 100,
-            bicycle_twists_reps: 100,
-            plank_time: '1:00',
-            inverted_plank_time: '0:30',
-
-            elliptical_bike_time: '30',
-            body_weight: 70,
-        };
-
-        const PER_HAND_FIELDS = [
-            'shoulders_weight', 'military_press_weight',
-            'curls_weight', 'chest_flies_weight', 'chest_presses_weight'
-        ];
-
-        const PER_SIDE_REPS = [ 
-            'shoulders_reps', 'curls_reps'
-        ];
-
-        const WEIGHT_REP_PAIRS = {
-            shoulders_weight: 'shoulders_reps',
-            military_press_weight: 'military_press_reps',
-            curls_weight: 'curls_reps',
-            tricep_curls_weight: 'tricep_curls_reps',
-            chest_flies_weight: 'chest_flies_reps',
-            chest_presses_weight: 'chest_presses_reps'
-        };
-
-        const TIME_FIELDS = ['plank_time', 'inverted_plank_time'];
-
-        function loadData() {
-            const saved = localStorage.getItem('journalData');
-            if (saved) journalData = JSON.parse(saved);
-            // Ensure shared longer_term_plans exists
-            if (typeof journalData.longer_term_plans === 'undefined') {
-                journalData.longer_term_plans = '';
-            }
-            // Load unit preference
-            const unitPref = localStorage.getItem('journalUnit');
-            if (unitPref === 'lbs') useLbs = true;
-        }
-
-        function saveData() {
-            localStorage.setItem('journalData', JSON.stringify(journalData));
-            localStorage.setItem('journalUnit', useLbs ? 'lbs' : 'kg');
-        }
-
-        function getPreviousValue(fieldKey, currentDate) {
-            // Shared field has no "previous" concept across dates
-            if (fieldKey === 'longer_term_plans') return '';
-            const dates = Object.keys(journalData).sort().reverse();
-            for (let date of dates) {
-                if (date < currentDate && journalData[date] && journalData[date][fieldKey] !== undefined) {
-                    const val = journalData[date][fieldKey];
-                    const cleaned = typeof val === 'string' ? val.trim() : val;
-                    // Skip blank or zero so we surface the most recent non-zero value
-                    if (cleaned === '' || cleaned === 0 || cleaned === '0' || cleaned === null || cleaned === false) {
-                        continue;
-                    }
-                    return cleaned;
+                if (cleaned === '' || cleaned === 0 || cleaned === '0' || cleaned === null || cleaned === false) {
+                    continue;
                 }
+
+                return cleaned;
             }
-            return '';
         }
 
-        // Convert a stored kg value for display (to current unit)
-        function toDisplayWeight(kgVal) {
-            if (kgVal === undefined || kgVal === null || kgVal === '') return '';
-            const num = parseFloat(kgVal);
-            if (isNaN(num)) return kgVal;
-            if (useLbs) return Math.round(num * KG_TO_LBS * 10) / 10;
-            return num;
+        return '';
+    }
+
+    function toDisplayWeight(kgVal) {
+        if (kgVal === undefined || kgVal === null || kgVal === '') return '';
+
+        const num = parseFloat(kgVal);
+        if (isNaN(num)) return kgVal;
+
+        if (useLbs) return Math.round(num * KG_TO_LBS * 10) / 10;
+        return num;
+    }
+
+    function toStorageWeight(displayVal) {
+        if (displayVal === undefined || displayVal === null || displayVal === '') return undefined;
+
+        const num = parseFloat(displayVal);
+        if (isNaN(num)) return undefined;
+
+        if (useLbs) return Math.round(num * LBS_TO_KG * 100) / 100;
+        return num;
+    }
+
+    function weightUnitLabel() {
+        return useLbs ? 'lbs' : 'kg';
+    }
+
+    function getPlaceholderDisplay(key) {
+        const raw = PLACEHOLDERS[key];
+        if (raw === undefined || raw === null) return '';
+
+        if (key.endsWith('_weight') || key === 'body_weight') {
+            const num = parseFloat(raw);
+            if (isNaN(num)) return String(raw);
+
+            const display = useLbs
+                ? Math.round(num * KG_TO_LBS * 10) / 10
+                : num;
+
+            return PER_HAND_FIELDS.includes(key)
+                ? `${display} per hand`
+                : String(display);
         }
 
-        // Convert a displayed value back to kg for storage
-        function toStorageWeight(displayVal) {
-            if (displayVal === undefined || displayVal === null || displayVal === '') return undefined;
-            const num = parseFloat(displayVal);
-            if (isNaN(num)) return undefined;
-            if (useLbs) return Math.round(num * LBS_TO_KG * 100) / 100;
-            return num;
+        return String(raw);
+    }
+
+    const fields = {
+        hours_of_sleep: { type: 'number', label: 'Hours of Sleep', placeholder: '8'},
+        stretches_pre: { type: 'checkbox', label: 'Stretches' },
+        shoulders_weight: { type: 'number', label: 'Shoulders Weight', isWeight: true },
+        shoulders_reps: { type: 'number', label: 'Shoulders Reps' },
+        military_press_weight: { type: 'number', label: 'Military Press Weight', isWeight: true },
+        military_press_reps: { type: 'number', label: 'Military Press Reps' },
+        curls_weight: { type: 'number', label: 'Bicep Curls Weight', isWeight: true },
+        curls_reps: { type: 'number', label: 'Bicep Curls Reps' },
+        tricep_curls_weight: { type: 'number', label: 'Tricep Curls Weight', isWeight: true },
+        tricep_curls_reps: { type: 'number', label: 'Tricep Curls Reps' },
+        chest_flies_weight: { type: 'number', label: 'Chest Flies Weight', isWeight: true },
+        chest_flies_reps: { type: 'number', label: 'Chest Flies Reps' },
+        chest_presses_weight: { type: 'number', label: 'Chest Presses Weight', isWeight: true },
+        chest_presses_reps: { type: 'number', label: 'Chest Presses Reps' },
+        pushups_standard_reps: { type: 'number', label: 'Pushups Standard' },
+        pushups_tricep_reps: { type: 'number', label: 'Pushups Tricep' },
+        crunches_reps: { type: 'number', label: 'Crunches' },
+        crossing_crunches_reps: { type: 'number', label: 'Crossing Crunches' },
+        inclined_situps_reps: { type: 'number', label: 'Inclined Situps' },
+        leg_lifts_reps: { type: 'number', label: 'Leg Lifts' },
+        scissor_kicks_reps: { type: 'number', label: 'Scissor Kicks' },
+        butterfly_kicks_reps: { type: 'number', label: 'Butterfly Kicks' },
+        bicycle_twists_reps: { type: 'number', label: 'Bicycle Twists' },
+        plank_time: { type: 'text', label: 'Plank' },
+        inverted_plank_time: { type: 'text', label: 'Inverted Plank' },
+        elliptical_bike_time: { type: 'text', label: 'Elliptical / Bike (min)' },
+        body_weight: { type: 'number', label: 'Body Weight', placeholder: '8'},
+        stretches_post: { type: 'checkbox', label: 'Stretches' },
+
+        breakfast: { type: 'text', label: 'Breakfast', placeholder: '' },
+        breakfast_calories: { type: 'number', label: 'Calories', placeholder: '' },
+        lunch: { type: 'text', label: 'Lunch', placeholder: '' },
+        lunch_calories: { type: 'number', label: 'Calories', placeholder: '' },
+        dinner: { type: 'text', label: 'Dinner', placeholder: '' },
+        dinner_calories: { type: 'number', label: 'Calories', placeholder: '' },
+        alcohol_servings: { type: 'number', label: 'Servings of Alcohol', placeholder: '0' },
+
+        what_did_you_do: { type: 'textarea', label: 'What did you do today, generally speaking?', placeholder: '' },
+        what_did_you_accomplish: { type: 'textarea', label: 'What did you accomplish?', placeholder: '' },
+        work: { type: 'textarea', label: 'What did you do for work?', placeholder: '' },
+        for_you_fam: { type: 'textarea', label: 'What did you do for you/fam?', placeholder: '' },
+        high_point: { type: 'textarea', label: 'What was a high point from today?', placeholder: '' },
+        plan_tomorrow: { type: 'textarea', label: 'What do you plan to do tomorrow?', placeholder: '' },
+        longer_term_plans: { type: 'textarea', label: 'Longer term plans that are on your mind?', placeholder: '' }
+    };
+
+    function autoResizeTextarea(el) {
+        if (!el || el.tagName !== 'TEXTAREA') return;
+        el.style.height = 'auto';
+        el.style.height = el.scrollHeight + 'px';
+    }
+
+    function showToast(msg, isError = false) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.toggle('error', isError);
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2400);
+    }
+
+    function ensureEntryDefaults(dateKey) {
+        if (!journalData[dateKey]) {
+            journalData[dateKey] = {};
         }
 
-        function weightUnitLabel() {
-            return useLbs ? 'lbs' : 'kg';
+        const entry = journalData[dateKey];
+
+        Object.entries(PLACEHOLDERS).forEach(([key, value]) => {
+            if (entry[key] === undefined || entry[key] === null || entry[key] === '') {
+                entry[key] = value;
+            }
+        });
+
+        if (entry.breakfast === undefined || entry.breakfast === null || entry.breakfast === '') {
+            entry.breakfast = 'None';
         }
 
-        function getPlaceholderDisplay(key) {
-            const raw = PLACEHOLDERS[key];
-            if (raw === undefined || raw === null) return '';
+        if (entry.breakfast_calories === undefined || entry.breakfast_calories === null || entry.breakfast_calories === '') {
+            entry.breakfast_calories = 0;
+        }
 
-            // Weight fields
-            if (key.endsWith('_weight') || key === 'body_weight') {
-                const num = parseFloat(raw);
-                if (isNaN(num)) return String(raw);
-                const display = useLbs
-                    ? Math.round(num * KG_TO_LBS * 10) / 10
-                    : num;
-                return PER_HAND_FIELDS.includes(key)
-                    ? `${display} per hand`
-                    : String(display);
+        if (entry.alcohol_servings === undefined || entry.alcohol_servings === null || entry.alcohol_servings === '') {
+            entry.alcohol_servings = 0;
+        }
+    }
+
+    function renderSidebar(initialLoad = false) {
+        const dateList = document.getElementById('dateList');
+        dateList.innerHTML = '';
+
+        const today = new Date();
+        const oldestDate = new Date(2026, 6, 22);
+        let currentGenDate = new Date(oldestDate);
+        const maxDays = 90;
+        let items = [];
+
+        for (let i = 0; i < maxDays; i++) {
+            const dateKey = formatDateKey(currentGenDate);
+            const display = formatDisplayDate(dateKey);
+            const isFuture = currentGenDate > today;
+            const entry = journalData[dateKey] || {};
+            const status = getEntryStatus(entry);
+
+            const item = document.createElement('div');
+            item.className = `date-item ${status}`;
+
+            if (dateKey === currentDateKey) item.classList.add('current');
+            if (isFuture) item.classList.add('future');
+
+            item.innerHTML = `
+                <span>${display}</span>
+                <span style="font-size: 12px; color: #666;">${dateKey}</span>
+            `;
+
+            if (!isFuture) {
+                item.addEventListener('click', () => {
+                    currentDateKey = dateKey;
+
+                    ensureEntryDefaults(currentDateKey);
+                    saveData();
+
+                    renderForm();
+                    renderSidebar(false);
+                    closeMobileMenu();
+                });
             }
 
-            // Everything else
-            return String(raw);
+            items.push(item);
+            currentGenDate.setDate(currentGenDate.getDate() + 1);
         }
 
-                const fields = {
-            // Exercises / metrics (needed for auto-save + live charts)
-            hours_of_sleep:           { type: 'number', label: 'Hours of Sleep', placeholder: '8'},
-            stretches_pre:            { type: 'checkbox', label: 'Stretches' },
-            shoulders_weight:         { type: 'number', label: 'Shoulders Weight', isWeight: true },
-            shoulders_reps:           { type: 'number', label: 'Shoulders Reps' },
-            military_press_weight:    { type: 'number', label: 'Military Press Weight', isWeight: true },
-            military_press_reps:      { type: 'number', label: 'Military Press Reps' },
-            curls_weight:             { type: 'number', label: 'Bicep Curls Weight', isWeight: true },
-            curls_reps:               { type: 'number', label: 'Bicep Curls Reps' },
-            tricep_curls_weight:      { type: 'number', label: 'Tricep Curls Weight', isWeight: true },
-            tricep_curls_reps:        { type: 'number', label: 'Tricep Curls Reps' },
-            chest_flies_weight:       { type: 'number', label: 'Chest Flies Weight', isWeight: true },
-            chest_flies_reps:         { type: 'number', label: 'Chest Flies Reps' },
-            chest_presses_weight:     { type: 'number', label: 'Chest Presses Weight', isWeight: true },
-            chest_presses_reps:       { type: 'number', label: 'Chest Presses Reps' },
-            pushups_standard_reps:    { type: 'number', label: 'Pushups Standard' },
-            pushups_tricep_reps:      { type: 'number', label: 'Pushups Tricep' },
-            crunches_reps:            { type: 'number', label: 'Crunches' },
-            crossing_crunches_reps:   { type: 'number', label: 'Crossing Crunches' },
-            inclined_situps_reps:     { type: 'number', label: 'Inclined Situps' },
-            leg_lifts_reps:           { type: 'number', label: 'Leg Lifts' },
-            scissor_kicks_reps:       { type: 'number', label: 'Scissor Kicks' },
-            butterfly_kicks_reps:     { type: 'number', label: 'Butterfly Kicks' },
-            bicycle_twists_reps:      { type: 'number', label: 'Bicycle Twists' },
-            plank_time:               { type: 'text',   label: 'Plank' },
-            inverted_plank_time:      { type: 'text',   label: 'Inverted Plank' },
-            elliptical_bike_time:     { type: 'text',   label: 'Elliptical / Bike (min)' },
-            body_weight:              { type: 'number', label: 'Body Weight', isWeight: true },
-            stretches_post:           { type: 'checkbox', label: 'Stretches' },
+        items.forEach(item => dateList.appendChild(item));
 
-            // Meals
-            breakfast:                { type: 'text',   label: 'Breakfast', placeholder: '' },
-            breakfast_calories:       { type: 'number', label: 'Calories', placeholder: '' },
-            lunch:                    { type: 'text',   label: 'Lunch', placeholder: '' },
-            lunch_calories:           { type: 'number', label: 'Calories', placeholder: '' },
-            dinner:                   { type: 'text',   label: 'Dinner', placeholder: '' },
-            dinner_calories:          { type: 'number', label: 'Calories', placeholder: '' },
-            alcohol_servings:         { type: 'number', label: 'Servings of Alcohol', placeholder: '0' },
+        if (initialLoad) {
+            setTimeout(() => {
+                const currentItem = dateList.querySelector('.current');
 
-            // Journal
-            what_did_you_do:          { type: 'textarea', label: 'What did you do today, generally speaking?', placeholder: '' },
-            what_did_you_accomplish:  { type: 'textarea', label: 'What did you accomplish?', placeholder: '' },
-            work:                     { type: 'textarea', label: 'What did you do for work?', placeholder: '' },
-            for_you_fam:              { type: 'textarea', label: 'What did you do for you/fam?', placeholder: '' },
-            high_point:               { type: 'textarea', label: 'What was a high point from today?', placeholder: '' },
-            plan_tomorrow:            { type: 'textarea', label: 'What do you plan to do tomorrow?', placeholder: '' },
-            longer_term_plans:        { type: 'textarea', label: 'Longer term plans that are on your mind?', placeholder: '' }
-        };
-
-        function autoResizeTextarea(el) {
-            if (!el || el.tagName !== 'TEXTAREA') return;
-            el.style.height = 'auto';
-            el.style.height = el.scrollHeight + 'px';
+                if (currentItem) {
+                    const index = Array.from(dateList.children).indexOf(currentItem);
+                    dateList.scrollTop = Math.max(0, index * 48 - 700);
+                }
+            }, 100);
         }
-
-        function showToast(msg, isError = false) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.toggle('error', isError);
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2400);
-        }
-
-        function ensureEntryDefaults(dateKey) {
-    if (!journalData[dateKey]) {
-        journalData[dateKey] = {};
     }
 
-    const entry = journalData[dateKey];
-
-    // Materialize every default from PLACEHOLDERS as an actual stored value.
-    // Stored weights remain in kg, just like the rest of journalData.
-    Object.entries(PLACEHOLDERS).forEach(([key, value]) => {
-        if (entry[key] === undefined || entry[key] === null || entry[key] === '') {
-            entry[key] = value;
-        }
-    });
-
-    // Breakfast has a default even though it isn't in PLACEHOLDERS.
-    if (entry.breakfast === undefined || entry.breakfast === null || entry.breakfast === '') {
-        entry.breakfast = 'None';
+    function getEntryStatus(entry) {
+        if (!entry || Object.keys(entry).length === 0) return 'empty';
+        return Object.keys(entry).length > 3 ? 'partial' : 'empty';
     }
 
-    if (entry.breakfast_calories === undefined || entry.breakfast_calories === null || entry.breakfast_calories === '') {
-        entry.breakfast_calories = 0;
+    function parseTimeToSeconds(timeStr) {
+        if (!timeStr) return 0;
+
+        const parts = timeStr.split(':').map(Number);
+        return (parts[0] || 0) * 60 + (parts[1] || 0);
     }
 
-    // Alcohol also has an explicit default of 0.
-    if (entry.alcohol_servings === undefined || entry.alcohol_servings === null || entry.alcohol_servings === '') {
-        entry.alcohol_servings = 0;
-    }
-}
-function renderSidebar(initialLoad = false) {
-    const dateList = document.getElementById('dateList');
-    dateList.innerHTML = '';
+    function calculateTotalWork(entry) {
+        if (!entry) return 0;
 
-    const today = new Date();
-    const oldestDate = new Date(2026, 6, 22);
-    let currentGenDate = new Date(oldestDate);
-    const maxDays = 90;
-    let items = [];
+        let total = 0;
+        const bw = parseFloat(entry.body_weight) || 80;
 
-    for (let i = 0; i < maxDays; i++) {
-        const dateKey = formatDateKey(currentGenDate);
-        const display = formatDisplayDate(dateKey);
-        const isFuture = currentGenDate > today;
-        const entry = journalData[dateKey] || {};
-        const status = getEntryStatus(entry);
+        const weightedPairs = [
+            ['shoulders_weight', 'shoulders_reps'],
+            ['military_press_weight', 'military_press_reps'],
+            ['curls_weight', 'curls_reps'],
+            ['tricep_curls_weight', 'tricep_curls_reps'],
+            ['chest_flies_weight', 'chest_flies_reps'],
+            ['chest_presses_weight', 'chest_presses_reps']
+        ];
 
-        const item = document.createElement('div');
-        item.className = `date-item ${status}`;
-        if (dateKey === currentDateKey) item.classList.add('current');
-        if (isFuture) item.classList.add('future');
-
-        item.innerHTML = `
-            <span>${display}</span>
-            <span style="font-size: 12px; color: #666;">${dateKey}</span>
-        `;
-
-        if (!isFuture) {
-            item.addEventListener('click', () => {
-                currentDateKey = dateKey;
-
-                // Defaults are real data, not just visual placeholders.
-                ensureEntryDefaults(currentDateKey);
-                saveData();
-
-                renderForm();
-                renderSidebar(false);
-                closeMobileMenu();
-            });
+        for (let [wKey, rKey] of weightedPairs) {
+            const weight = parseFloat(entry[wKey]) || 0;
+            const reps = parseFloat(entry[rKey]) || 0;
+            total += weight * reps;
         }
 
-        items.push(item);
-        currentGenDate.setDate(currentGenDate.getDate() + 1);
+        total += (parseFloat(entry.pushups_standard_reps) || 0) * (bw * 0.7);
+        total += (parseFloat(entry.pushups_tricep_reps) || 0) * (bw * 0.7);
+
+        const coreKeys = [
+            'crunches_reps',
+            'crossing_crunches_reps',
+            'inclined_situps_reps',
+            'leg_lifts_reps',
+            'scissor_kicks_reps',
+            'butterfly_kicks_reps',
+            'bicycle_twists_reps'
+        ];
+
+        coreKeys.forEach(key => {
+            total += (parseFloat(entry[key]) || 0) * (bw * 0.35);
+        });
+
+        total += parseTimeToSeconds(entry.plank_time || '') * 10;
+        total += parseTimeToSeconds(entry.inverted_plank_time || '') * 8;
+
+        const cardioMin = parseFloat(entry.elliptical_bike_time) || 0;
+        total += cardioMin * 12;
+
+        return Math.round(total);
     }
 
-    items.forEach(item => dateList.appendChild(item));
+    function calculateTotalCalories(entry) {
+        if (!entry) return 0;
 
-    if (initialLoad) {
-        setTimeout(() => {
-            const currentItem = dateList.querySelector('.current');
-            if (currentItem) {
-                const index = Array.from(dateList.children).indexOf(currentItem);
-                dateList.scrollTop = Math.max(0, index * 48 - 700);
-            }
-        }, 100);
+        return (parseFloat(entry.breakfast_calories) || 0) +
+               (parseFloat(entry.lunch_calories) || 0) +
+               (parseFloat(entry.dinner_calories) || 0);
     }
-}
 
-        function getEntryStatus(entry) {
-            if (!entry || Object.keys(entry).length === 0) return 'empty';
-            return Object.keys(entry).length > 3 ? 'partial' : 'empty';
-        }
+    function renderForm() {
+        const container = document.getElementById('formContainer');
+        const entry = journalData[currentDateKey] || {};
+        const unit = weightUnitLabel();
 
-        function parseTimeToSeconds(timeStr) {
-            if (!timeStr) return 0;
-            const parts = timeStr.split(':').map(Number);
-            return (parts[0] || 0) * 60 + (parts[1] || 0);
-        }
+        let html = '';
 
-        function calculateTotalWork(entry) {
-            if (!entry) return 0;
-            let total = 0;
-            const bw = parseFloat(entry.body_weight) || 80;
-            const weightedPairs = [
-                ['shoulders_weight', 'shoulders_reps'],
-                ['military_press_weight', 'military_press_reps'],
-                ['curls_weight', 'curls_reps'],
-                ['tricep_curls_weight', 'tricep_curls_reps'],
-                ['chest_flies_weight', 'chest_flies_reps'],
-                ['chest_presses_weight', 'chest_presses_reps']
-            ];
-            for (let [wKey, rKey] of weightedPairs) {
-                const weight = parseFloat(entry[wKey]) || 0;
-                const reps = parseFloat(entry[rKey]) || 0;
-                total += weight * reps;
-            }
-            total += (parseFloat(entry.pushups_standard_reps) || 0) * (bw * 0.7);
-            total += (parseFloat(entry.pushups_tricep_reps) || 0) * (bw * 0.7);
-            const coreKeys = [
-                'crunches_reps',
-                'crossing_crunches_reps',
-                'inclined_situps_reps',
-                'leg_lifts_reps',
-                'scissor_kicks_reps',
-                'butterfly_kicks_reps',
-                'bicycle_twists_reps'
-            ];
-            coreKeys.forEach(key => {
-                total += (parseFloat(entry[key]) || 0) * (bw * 0.35);
-            });
-            total += parseTimeToSeconds(entry.plank_time || '') * 10;
-            total += parseTimeToSeconds(entry.inverted_plank_time || '') * 8;
-            const cardioMin = parseFloat(entry.elliptical_bike_time) || 0;
-            total += cardioMin * 12;
-            return Math.round(total);
-        }
+        const bwDisplay = entry.body_weight != null ? toDisplayWeight(entry.body_weight) : '';
+        const bwPrev = getPreviousValue('body_weight', currentDateKey);
+        const bwPrevDisplay = bwPrev !== '' ? toDisplayWeight(bwPrev) : '';
 
-        function calculateTotalCalories(entry) {
-            if (!entry) return 0;
-            return (parseFloat(entry.breakfast_calories) || 0) +
-                   (parseFloat(entry.lunch_calories) || 0) +
-                   (parseFloat(entry.dinner_calories) || 0);
-        }
-
-        function renderForm() {
-            const container = document.getElementById('formContainer');
-            const entry = journalData[currentDateKey] || {};
-            const unit = weightUnitLabel();
-
-            let html = '';
-
-            // ── Hours of Sleep + Body Weight (same line, above everything) ──
-            const bwDisplay = entry.body_weight != null ? toDisplayWeight(entry.body_weight) : '';
-            const bwPrev = getPreviousValue('body_weight', currentDateKey);
-            const bwPrevDisplay = bwPrev !== '' ? toDisplayWeight(bwPrev) : '';
-
-            html += `
-                <div class="form-section" style="margin-bottom: 18px;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 420px;">
-                        <div class="field-group">
-                            <label>Hours of Sleep</label>
-                            <input type="text" inputmode="decimal" id="hours_of_sleep"
-                            value="${entry.hours_of_sleep != null ? entry.hours_of_sleep : ''}"
-                            placeholder="${fields.hours_of_sleep.placeholder || ''}">
-                        </div>
-                        <div class="field-group">
-                            <label>Body Weight (${unit})</label>
-                            <input type="text" inputmode="decimal" id="body_weight"
-                                   value="${bwDisplay}"
-                                   placeholder="${bwPrevDisplay || getPlaceholderDisplay('body_weight')}">
-                        </div>
+        html += `
+            <div class="form-section" style="margin-bottom: 18px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 420px;">
+                    <div class="field-group">
+                        <label>Hours of Sleep</label>
+                        <input type="text" inputmode="decimal" id="hours_of_sleep"
+                        value="${entry.hours_of_sleep != null ? entry.hours_of_sleep : ''}"
+                        placeholder="${fields.hours_of_sleep.placeholder || ''}">
+                    </div>
+                    <div class="field-group">
+                        <label>Body Weight (${unit})</label>
+                        <input type="text" inputmode="decimal" id="body_weight"
+                               value="${bwDisplay}"
+                               placeholder="${bwPrevDisplay || getPlaceholderDisplay('body_weight')}">
                     </div>
                 </div>
-            `;
+            </div>
+        `;
 
-            // ── Exercises ───────────────────────────────────────────────────
-            html += `
-                <div class="form-section">
-                    <div class="section-title">💪 Exercises</div>
+        html += `
+            <div class="form-section">
+                <div class="section-title">💪 Exercises</div>
 
-                    <label class="stretch-check">
-                        <input type="checkbox" id="stretches_pre" ${entry.stretches_pre ? 'checked' : ''}>
-                        Stretches
-                    </label>
+                <label class="stretch-check">
+                    <input type="checkbox" id="stretches_pre" ${entry.stretches_pre ? 'checked' : ''}>
+                    Stretches
+                </label>
 
-                    <div style="margin-bottom: 28px;">
-                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 10px; color: #ddd;">Upper Body</div>
-                        <div class="ex-grid">
-            `;
+                <div style="margin-bottom: 28px;">
+                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 10px; color: #ddd;">Upper Body</div>
+                    <div class="ex-grid">
+        `;
 
-            const upperBody = [
-                {name: 'Shoulder Flies', w: 'shoulders_weight', r: 'shoulders_reps'},
-                {name: 'Military Press', w: 'military_press_weight', r: 'military_press_reps'},
-                {name: 'Bicep Curls', w: 'curls_weight', r: 'curls_reps'},
-                {name: 'Tricep Curls', w: 'tricep_curls_weight', r: 'tricep_curls_reps'},
-                {name: 'Chest Flies', w: 'chest_flies_weight', r: 'chest_flies_reps'},
-                {name: 'Chest Presses', w: 'chest_presses_weight', r: 'chest_presses_reps'}
-            ];
+        const upperBody = [
+            {name: 'Shoulder Flies', w: 'shoulders_weight', r: 'shoulders_reps'},
+            {name: 'Military Press', w: 'military_press_weight', r: 'military_press_reps'},
+            {name: 'Bicep Curls', w: 'curls_weight', r: 'curls_reps'},
+            {name: 'Tricep Curls', w: 'tricep_curls_weight', r: 'tricep_curls_reps'},
+            {name: 'Chest Flies', w: 'chest_flies_weight', r: 'chest_flies_reps'},
+            {name: 'Chest Presses', w: 'chest_presses_weight', r: 'chest_presses_reps'}
+        ];
 
-            for (let ex of upperBody) {
-                const wPrev = getPreviousValue(ex.w, currentDateKey);
-                const rPrev = getPreviousValue(ex.r, currentDateKey);
+        for (let ex of upperBody) {
+            const wPrev = getPreviousValue(ex.w, currentDateKey);
+            const rPrev = getPreviousValue(ex.r, currentDateKey);
 
-                // Prefer stored value → otherwise use the default number (so it is really typed in)
-                let displayW = entry[ex.w] != null ? toDisplayWeight(entry[ex.w]) : '';
-                if (displayW === '') {
-                    const fallbackNum = getPlaceholderDisplay(ex.w).replace(/ per hand$/, '');
-                    displayW = fallbackNum;
-                }
+            let displayW = entry[ex.w] != null ? toDisplayWeight(entry[ex.w]) : '';
 
-                let displayR = entry[ex.r] != null ? entry[ex.r] : '';
-                if (displayR === '') {
-                    displayR = getPlaceholderDisplay(ex.r);
-                }
-
-                // Build weight placeholder (still shown as grey text)
-                let weightPlaceholder = (wPrev !== '' ? toDisplayWeight(wPrev) : getPlaceholderDisplay(ex.w));
-                if (PER_HAND_FIELDS.includes(ex.w) && weightPlaceholder && !String(weightPlaceholder).includes('per hand')) {
-                    weightPlaceholder += ' per hand';
-                }
-
-                // Build reps placeholder
-                let repsPlaceholder = rPrev || getPlaceholderDisplay(ex.r);
-                if (PER_SIDE_REPS.includes(ex.r) && repsPlaceholder && !String(repsPlaceholder).includes('per side')) {
-                    repsPlaceholder += ' per side';
-                }
-
-                html += `
-                    <div class="ex-card">
-                        <div class="ex-card-title">${ex.name}</div>
-                        <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
-                            <div class="field-group">
-                                <label>Weight (${unit})</label>
-                                <input type="text" inputmode="decimal" id="${ex.w}"
-                                    value="${displayW}"
-                                    placeholder="${weightPlaceholder}">
-                            </div>
-                            <div class="field-group">
-                                <label>Reps</label>
-                                <input type="text" inputmode="numeric" id="${ex.r}"
-                                    value="${displayR}"
-                                    placeholder="${repsPlaceholder}">
-                            </div>
-                        </div>
-                    </div>
-                `;
+            if (displayW === '') {
+                const fallbackNum = getPlaceholderDisplay(ex.w).replace(/ per hand$/, '');
+                displayW = fallbackNum;
             }
 
-            // Pushups (same pre-fill idea)
-            const pushStandardPrev = getPreviousValue('pushups_standard_reps', currentDateKey);
-            const pushTricepPrev   = getPreviousValue('pushups_tricep_reps', currentDateKey);
+            let displayR = entry[ex.r] != null ? entry[ex.r] : '';
 
-            let pushStandardVal = entry.pushups_standard_reps != null ? entry.pushups_standard_reps : '';
-            if (pushStandardVal === '') pushStandardVal = getPlaceholderDisplay('pushups_standard_reps');
+            if (displayR === '') {
+                displayR = getPlaceholderDisplay(ex.r);
+            }
 
-            let pushTricepVal = entry.pushups_tricep_reps != null ? entry.pushups_tricep_reps : '';
-            if (pushTricepVal === '') pushTricepVal = getPlaceholderDisplay('pushups_tricep_reps');
+            let weightPlaceholder = (wPrev !== '' ? toDisplayWeight(wPrev) : getPlaceholderDisplay(ex.w));
+
+            if (PER_HAND_FIELDS.includes(ex.w) && weightPlaceholder && !String(weightPlaceholder).includes('per hand')) {
+                weightPlaceholder += ' per hand';
+            }
+
+            let repsPlaceholder = rPrev || getPlaceholderDisplay(ex.r);
+
+            if (PER_SIDE_REPS.includes(ex.r) && repsPlaceholder && !String(repsPlaceholder).includes('per side')) {
+                repsPlaceholder += ' per side';
+            }
 
             html += `
                 <div class="ex-card">
-                    <div class="ex-card-title">Pushups</div>
+                    <div class="ex-card-title">${ex.name}</div>
                     <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
                         <div class="field-group">
-                            <label>Standard</label>
-                            <input type="text" inputmode="numeric" id="pushups_standard_reps"
-                                value="${pushStandardVal}"
-                                placeholder="${pushStandardPrev || getPlaceholderDisplay('pushups_standard_reps')}">
+                            <label>Weight (${unit})</label>
+                            <input type="text" inputmode="decimal" id="${ex.w}"
+                                value="${displayW}"
+                                placeholder="${weightPlaceholder}">
                         </div>
                         <div class="field-group">
-                            <label>Tricep</label>
-                            <input type="text" inputmode="numeric" id="pushups_tricep_reps"
-                                value="${pushTricepVal}"
-                                placeholder="${pushTricepPrev || getPlaceholderDisplay('pushups_tricep_reps')}">
+                            <label>Reps</label>
+                            <input type="text" inputmode="numeric" id="${ex.r}"
+                                value="${displayR}"
+                                placeholder="${repsPlaceholder}">
                         </div>
                     </div>
                 </div>
             `;
+        }
 
-            html += '</div></div>'; // close Upper Body
+        const pushStandardPrev = getPreviousValue('pushups_standard_reps', currentDateKey);
+        const pushTricepPrev = getPreviousValue('pushups_tricep_reps', currentDateKey);
 
-            // Abs / Core
-            html += `
-                    <div style="margin-bottom: 28px;">
-                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 10px; color: #ddd;">Abs / Core</div>
-                        <div class="abs-grid">
-            `;
+        let pushStandardVal = entry.pushups_standard_reps != null ? entry.pushups_standard_reps : '';
 
-            const absExercises = [
-                {key: 'crunches_reps', label: 'Crunches'},
-                {key: 'crossing_crunches_reps', label: 'Crossing Crunches'},
-                {key: 'inclined_situps_reps', label: 'Inclined Situps'},
-                {key: 'leg_lifts_reps', label: 'Leg Lifts'},
-                {key: 'scissor_kicks_reps', label: 'Scissor Kicks'},
-                {key: 'butterfly_kicks_reps', label: 'Butterfly Kicks'},
-                {key: 'bicycle_twists_reps', label: 'Bicycle Twists'},
-                {key: 'plank_time', label: 'Plank'},
-                {key: 'inverted_plank_time', label: 'Inverted Plank'}
-            ];
+        if (pushStandardVal === '') {
+            pushStandardVal = getPlaceholderDisplay('pushups_standard_reps');
+        }
 
-            for (let ex of absExercises) {
-                const prev = getPreviousValue(ex.key, currentDateKey);
-                let val = entry[ex.key] != null ? entry[ex.key] : '';
-                if (val === '') val = getPlaceholderDisplay(ex.key);   // pre-fill the default
+        let pushTricepVal = entry.pushups_tricep_reps != null ? entry.pushups_tricep_reps : '';
 
-                html += `
+        if (pushTricepVal === '') {
+            pushTricepVal = getPlaceholderDisplay('pushups_tricep_reps');
+        }
+
+        html += `
+            <div class="ex-card">
+                <div class="ex-card-title">Pushups</div>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
                     <div class="field-group">
-                        <label>${ex.label}</label>
-                        <input type="text" id="${ex.key}"
-                            value="${val}"
-                            placeholder="${prev || getPlaceholderDisplay(ex.key)}">
+                        <label>Standard</label>
+                        <input type="text" inputmode="numeric" id="pushups_standard_reps"
+                            value="${pushStandardVal}"
+                            placeholder="${pushStandardPrev || getPlaceholderDisplay('pushups_standard_reps')}">
                     </div>
-                `;
+                    <div class="field-group">
+                        <label>Tricep</label>
+                        <input type="text" inputmode="numeric" id="pushups_tricep_reps"
+                            value="${pushTricepVal}"
+                            placeholder="${pushTricepPrev || getPlaceholderDisplay('pushups_tricep_reps')}">
+                    </div>
+                </div>
+            </div>
+        `;
+
+        html += '</div></div>';
+
+        html += `
+                <div style="margin-bottom: 28px;">
+                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 10px; color: #ddd;">Abs / Core</div>
+                    <div class="abs-grid">
+        `;
+
+        const absExercises = [
+            {key: 'crunches_reps', label: 'Crunches'},
+            {key: 'crossing_crunches_reps', label: 'Crossing Crunches'},
+            {key: 'inclined_situps_reps', label: 'Inclined Situps'},
+            {key: 'leg_lifts_reps', label: 'Leg Lifts'},
+            {key: 'scissor_kicks_reps', label: 'Scissor Kicks'},
+            {key: 'butterfly_kicks_reps', label: 'Butterfly Kicks'},
+            {key: 'bicycle_twists_reps', label: 'Bicycle Twists'},
+            {key: 'plank_time', label: 'Plank'},
+            {key: 'inverted_plank_time', label: 'Inverted Plank'}
+        ];
+
+        for (let ex of absExercises) {
+            const prev = getPreviousValue(ex.key, currentDateKey);
+            let val = entry[ex.key] != null ? entry[ex.key] : '';
+
+            if (val === '') {
+                val = getPlaceholderDisplay(ex.key);
             }
 
-            html += '</div></div>'; // close Abs
-
-            // Cardio
             html += `
-                    <div style="margin-bottom: 20px;">
-                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 10px; color: #ddd;">Cardio</div>
-                        <div class="cardio-grid">
-                            <div class="field-group">
-                                <label>Elliptical / Bike (min)</label>
-                                <input type="text" inputmode="decimal" id="elliptical_bike_time"
-                                       value="${entry.elliptical_bike_time != null ? entry.elliptical_bike_time : ''}"
-                                       placeholder="${getPreviousValue('elliptical_bike_time', currentDateKey) || getPlaceholderDisplay('elliptical_bike_time')}">
-                            </div>
+                <div class="field-group">
+                    <label>${ex.label}</label>
+                    <input type="text" id="${ex.key}"
+                        value="${val}"
+                        placeholder="${prev || getPlaceholderDisplay(ex.key)}">
+                </div>
+            `;
+        }
+
+        html += '</div></div>';
+
+        html += `
+                <div style="margin-bottom: 20px;">
+                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 10px; color: #ddd;">Cardio</div>
+                    <div class="cardio-grid">
+                        <div class="field-group">
+                            <label>Elliptical / Bike (min)</label>
+                            <input type="text" inputmode="decimal" id="elliptical_bike_time"
+                                   value="${entry.elliptical_bike_time != null ? entry.elliptical_bike_time : ''}"
+                                   placeholder="${getPreviousValue('elliptical_bike_time', currentDateKey) || getPlaceholderDisplay('elliptical_bike_time')}">
                         </div>
                     </div>
+                </div>
 
-                    <label class="stretch-check">
-                        <input type="checkbox" id="stretches_post" ${entry.stretches_post ? 'checked' : ''}>
-                        Stretches
-                    </label>
-            `;
+                <label class="stretch-check">
+                    <input type="checkbox" id="stretches_post" ${entry.stretches_post ? 'checked' : ''}>
+                    Stretches
+                </label>
+        `;
 
-            html += '</div>'; // close Exercises form-section
+        html += '</div>';
 
-            // ── Progress Graphs ─────────────────────────────────────────────
+        html += `
+            <div class="form-section">
+                <div class="section-title">📈 Progress Over Time</div>
+                <div class="charts-row">
+                    <div class="chart-container"><canvas id="workChart" height="260"></canvas></div>
+                    <div class="chart-container"><canvas id="caloriesChart" height="260"></canvas></div>
+                    <div class="chart-container"><canvas id="alcoholChart" height="260"></canvas></div>
+                    <div class="chart-container"><canvas id="bodyWeightChart" height="260"></canvas></div>
+                </div>
+            </div>
+        `;
+
+        html += `
+            <div class="form-section">
+                <div class="section-title">🍽️ Meals</div>
+                <div class="meals-grid">
+        `;
+
+        const mealPairs = [
+            ['breakfast', 'breakfast_calories'],
+            ['lunch', 'lunch_calories'],
+            ['dinner', 'dinner_calories']
+        ];
+
+        for (let pair of mealPairs) {
+            const foodField = pair[0];
+            const calField = pair[1];
+
+            const foodPrev = getPreviousValue(foodField, currentDateKey);
+            const calPrev = getPreviousValue(calField, currentDateKey);
+
+            let foodVal = entry[foodField] || '';
+            let calVal = entry[calField] != null ? entry[calField] : '';
+
+            if (foodField === 'breakfast') {
+                if (foodVal === '') foodVal = 'None';
+                if (calVal === '') calVal = '0';
+            }
+
             html += `
-                <div class="form-section">
-                    <div class="section-title">📈 Progress Over Time</div>
-                    <div class="charts-row">
-                        <div class="chart-container"><canvas id="workChart" height="260"></canvas></div>
-                        <div class="chart-container"><canvas id="caloriesChart" height="260"></canvas></div>
-                        <div class="chart-container"><canvas id="alcoholChart" height="260"></canvas></div>
-                        <div class="chart-container"><canvas id="bodyWeightChart" height="260"></canvas></div>
+                <div class="meal-row">
+                    <div class="field-group">
+                        <label>${fields[foodField].label}</label>
+                        <input type="text" id="${foodField}"
+                            value="${foodVal}"
+                            placeholder="${foodPrev || fields[foodField].placeholder}">
+                    </div>
+                    <div class="field-group">
+                        <label>${fields[calField].label}</label>
+                        <input type="text" inputmode="numeric" id="${calField}"
+                            value="${calVal}"
+                            placeholder="${calPrev || fields[calField].placeholder}">
                     </div>
                 </div>
             `;
+        }
 
-            // ── Meals ───────────────────────────────────────────────────────
-            html += `
-                <div class="form-section">
-                    <div class="section-title">🍽️ Meals</div>
-                    <div class="meals-grid">
-            `;
+        html += `
+            <div class="field-group" style="max-width: 200px;">
+                <label>${fields.alcohol_servings.label}</label>
+                <input type="text" inputmode="numeric" id="alcohol_servings"
+                       value="${entry.alcohol_servings != null && entry.alcohol_servings !== '' ? entry.alcohol_servings : '0'}"
+                       placeholder="0">
+            </div>
+        `;
 
-            const mealPairs = [
-                ['breakfast', 'breakfast_calories'],
-                ['lunch', 'lunch_calories'],
-                ['dinner', 'dinner_calories']
-            ];
+        html += '</div></div>';
 
-            for (let pair of mealPairs) {
-                const foodField = pair[0];
-                const calField = pair[1];
-                const foodPrev = getPreviousValue(foodField, currentDateKey);
-                const calPrev = getPreviousValue(calField, currentDateKey);
-                let foodVal = entry[foodField] || '';
-                let calVal  = entry[calField] != null ? entry[calField] : '';
+        const journalFields = [
+            'what_did_you_do', 'what_did_you_accomplish', 'work',
+            'for_you_fam', 'high_point', 'plan_tomorrow', 'longer_term_plans'
+        ];
 
-                // Breakfast special defaults
-                if (foodField === 'breakfast') {
-                    if (foodVal === '') foodVal = 'None';
-                    if (calVal  === '') calVal  = '0';
-                }
+        html += `
+            <div class="form-section">
+                <div class="section-title">📝 Journal</div>
+        `;
+
+        for (let f of journalFields) {
+            if (f === 'longer_term_plans') {
+                const sharedVal = journalData.longer_term_plans || '';
 
                 html += `
-                    <div class="meal-row">
-                        <div class="field-group">
-                            <label>${fields[foodField].label}</label>
-                            <input type="text" id="${foodField}"
-                                value="${foodVal}"
-                                placeholder="${foodPrev || fields[foodField].placeholder}">
-                        </div>
-                        <div class="field-group">
-                            <label>${fields[calField].label}</label>
-                            <input type="text" inputmode="numeric" id="${calField}"
-                                value="${calVal}"
-                                placeholder="${calPrev || fields[calField].placeholder}">
-                        </div>
+                    <div class="field-group" style="margin-bottom: 20px;">
+                        <label>${fields[f].label}</label>
+                        <textarea id="${f}" class="auto-grow" placeholder="${fields[f].placeholder}">${sharedVal}</textarea>
+                    </div>
+                `;
+            } else {
+                const prev = getPreviousValue(f, currentDateKey);
+
+                html += `
+                    <div class="field-group" style="margin-bottom: 20px;">
+                        <label>${fields[f].label}</label>
+                        <textarea id="${f}" placeholder="${prev || fields[f].placeholder}">${entry[f] || ''}</textarea>
                     </div>
                 `;
             }
-
-            // Alcohol – default value "0" and placeholder "0"
-            html += `
-                <div class="field-group" style="max-width: 200px;">
-                    <label>${fields.alcohol_servings.label}</label>
-                    <input type="text" inputmode="numeric" id="alcohol_servings"
-                           value="${entry.alcohol_servings != null && entry.alcohol_servings !== '' ? entry.alcohol_servings : '0'}"
-                           placeholder="0">
-                </div>
-            `;
-
-            html += '</div></div>';
-
-            // ── Journal ─────────────────────────────────────────────────────
-            const journalFields = [
-                'what_did_you_do', 'what_did_you_accomplish', 'work',
-                'for_you_fam', 'high_point', 'plan_tomorrow', 'longer_term_plans'
-            ];
-
-            html += `
-                <div class="form-section">
-                    <div class="section-title">📝 Journal</div>
-            `;
-
-            for (let f of journalFields) {
-                if (f === 'longer_term_plans') {
-                    const sharedVal = journalData.longer_term_plans || '';
-                    html += `
-                        <div class="field-group" style="margin-bottom: 20px;">
-                            <label>${fields[f].label}</label>
-                            <textarea id="${f}" class="auto-grow" placeholder="${fields[f].placeholder}">${sharedVal}</textarea>
-                        </div>
-                    `;
-                } else {
-                    const prev = getPreviousValue(f, currentDateKey);
-                    html += `
-                        <div class="field-group" style="margin-bottom: 20px;">
-                            <label>${fields[f].label}</label>
-                            <textarea id="${f}" placeholder="${prev || fields[f].placeholder}">${entry[f] || ''}</textarea>
-                        </div>
-                    `;
-                }
-            }
-
-            html += '</div>';
-
-            container.innerHTML = html;
-            document.getElementById('currentDateDisplay').textContent = formatDisplayDate(currentDateKey);
-            document.querySelectorAll('textarea').forEach(autoResizeTextarea);
-            renderCharts(true);
         }
 
-        let bodyWeightChartInstance = null;
-        let workChartInstance = null;
-        let caloriesChartInstance = null;
-        let alcoholChartInstance = null;
+        html += '</div>';
 
-        function renderCharts(isInitial = false) {
-            const allDates = Object.keys(journalData).sort();
+        container.innerHTML = html;
 
-            // Only keep real YYYY-MM-DD date keys
-            const dates = allDates.filter(d =>
-                /^\d{4}-\d{2}-\d{2}$/.test(d) && d >= '2026-07-22'
-            );
+        document.getElementById('currentDateDisplay').textContent = formatDisplayDate(currentDateKey);
 
-            if (dates.length === 0) return;
-            const bodyWeights = dates.map(d => {
-                const val = journalData[d]?.body_weight;
-                if (val === undefined || val === '') return null;
-                const kg = parseFloat(val);
-                if (isNaN(kg)) return null;
-                return useLbs ? Math.round(kg * KG_TO_LBS * 10) / 10 : kg;
-            });
-            const idealWeight = useLbs ? 132.28 : 60; // 60 kg ↔ 132.28 lbs
-            const totalWorks = dates.map(d => calculateTotalWork(journalData[d]));
-            const totalCalories = dates.map(d => calculateTotalCalories(journalData[d]));
-            const alcoholServings = dates.map(d => {
-                const val = journalData[d]?.alcohol_servings;
-                if (val === undefined || val === '' || val === null) return null;
-                const num = parseFloat(val);
-                return isNaN(num) ? null : num;
-            });
-            const commonOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: isInitial ? false : {
-                    duration: 400,
-                    easing: 'easeOutQuart'
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        labels: { color: '#ddd', font: { size: 12 } }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: { color: '#333' },
-                        ticks: { color: '#888', font: { size: 11 } }
-                    }
-                }
-            };
+        document.querySelectorAll('textarea').forEach(autoResizeTextarea);
 
-            function upsertChart(instanceRef, canvasId, config) {
-                const canvas = document.getElementById(canvasId);
-                if (!canvas) return null;
-                if (instanceRef && instanceRef.canvas === canvas) {
-                    instanceRef.data.labels = config.data.labels;
-                    config.data.datasets.forEach((ds, i) => {
-                        if (instanceRef.data.datasets[i]) {
-                            instanceRef.data.datasets[i].data = ds.data;
-                            instanceRef.data.datasets[i].label = ds.label;
-                        } else {
-                            instanceRef.data.datasets.push(ds);
-                        }
-                    });
-                    instanceRef.data.datasets.length = config.data.datasets.length;
-                    if (config.options?.scales?.y) {
-                        instanceRef.options.scales.y = config.options.scales.y;
-                    }
-                    instanceRef.update();
-                    return instanceRef;
-                } else {
-                    if (instanceRef) instanceRef.destroy();
-                    return new Chart(canvas, config);
-                }
-            }
+        renderCharts(true);
+    }
 
-            // Work Chart
-            workChartInstance = upsertChart(workChartInstance, 'workChart', {
-                type: 'line',
-                data: {
-                    labels: dates,
-                    datasets: [{
-                        label: 'Exercise (kg-reps)',
-                        data: totalWorks,
-                        borderColor: '#22c55e',
-                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                        tension: 0.3,
-                        pointRadius: 2.5,
-                        pointHoverRadius: 5
-                    }]
-                },
-                options: {
-                    ...commonOptions,
-                    scales: {
-                        ...commonOptions.scales,
-                        y: {
-                            grid: { color: '#333' },
-                            ticks: { color: '#888', font: { size: 11 } },
-                            beginAtZero: true
-                        }
+    let bodyWeightChartInstance = null;
+    let workChartInstance = null;
+    let caloriesChartInstance = null;
+    let alcoholChartInstance = null;
+
+    function renderCharts(isInitial = false) {
+        const allDates = Object.keys(journalData).sort();
+
+        const dates = allDates.filter(d =>
+            /^\d{4}-\d{2}-\d{2}$/.test(d) && d >= '2026-07-22'
+        );
+
+        if (dates.length === 0) return;
+
+        const bodyWeights = dates.map(d => {
+            const val = journalData[d]?.body_weight;
+
+            if (val === undefined || val === '') return null;
+
+            const kg = parseFloat(val);
+
+            if (isNaN(kg)) return null;
+
+            return useLbs ? Math.round(kg * KG_TO_LBS * 10) / 10 : kg;
+        });
+
+        const idealWeight = useLbs ? 132.28 : 60;
+
+        const totalWorks = dates.map(d => calculateTotalWork(journalData[d]));
+        const totalCalories = dates.map(d => calculateTotalCalories(journalData[d]));
+
+        const alcoholServings = dates.map(d => {
+            const val = journalData[d]?.alcohol_servings;
+
+            if (val === undefined || val === '' || val === null) return null;
+
+            const num = parseFloat(val);
+
+            return isNaN(num) ? null : num;
+        });
+
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: isInitial ? false : {
+                duration: 400,
+                easing: 'easeOutQuart'
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#ddd',
+                        font: { size: 12 }
                     }
                 }
-            });
-
-            // Calories Chart
-            caloriesChartInstance = upsertChart(caloriesChartInstance, 'caloriesChart', {
-                type: 'line',
-                data: {
-                    labels: dates,
-                    datasets: [{
-                        label: 'Caloric Intake',
-                        data: totalCalories,
-                        borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        tension: 0.3,
-                        pointRadius: 2.5,
-                        pointHoverRadius: 5
-                    }]
-                },
-                options: {
-                    ...commonOptions,
-                    scales: {
-                        ...commonOptions.scales,
-                        y: {
-                            grid: { color: '#333' },
-                            ticks: { color: '#888', font: { size: 11 } },
-                        }
-                    }
-                }
-            });
-
-            // Alcohol Chart
-            alcoholChartInstance = upsertChart(alcoholChartInstance, 'alcoholChart', {
-                type: 'line',
-                data: {
-                    labels: dates,
-                    datasets: [{
-                        label: 'Servings of Alcohol',
-                        data: alcoholServings,
-                        borderColor: '#a855f7',
-                        backgroundColor: 'rgba(168, 85, 247, 0.1)',
-                        tension: 0.3,
-                        pointRadius: 2.5,
-                        pointHoverRadius: 5
-                    }]
-                },
-                options: {
-                    ...commonOptions,
-                    scales: {
-                        ...commonOptions.scales,
-                        y: {
-                            grid: { color: '#333' },
-                            ticks: { color: '#888', font: { size: 11 } },
-                            beginAtZero: true,
-                            suggestedMax: 6
-                        }
-                    }
-                }
-            });
-
-            // Body Weight Chart (with ideal weight dotted line)
-            const bwLabel = useLbs ? 'Body Weight (lbs)' : 'Body Weight (kg)';
-            const bwMin = useLbs ? 110 : 50;
-            const bwMax = useLbs ? 176 : 80;
-            bodyWeightChartInstance = upsertChart(bodyWeightChartInstance, 'bodyWeightChart', {
-                type: 'line',
-                data: {
-                    labels: dates,
-                    datasets: [
-                        {
-                            label: bwLabel,
-                            data: bodyWeights,
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            tension: 0.3,
-                            pointRadius: 2.5,
-                            pointHoverRadius: 5
-                        },
-                        {
-                            label: 'Ideal',
-                            data: dates.map(() => idealWeight),
-                            borderColor: '#3b82f6',
-                            borderDash: [6, 4],
-                            borderWidth: 1.5,
-                            pointRadius: 0,
-                            pointHoverRadius: 0,
-                            fill: false,
-                            tension: 0
-                        }
-                    ]
-                },
-                options: {
-                    ...commonOptions,
-                    scales: {
-                        ...commonOptions.scales,
-                        y: {
-                            grid: { color: '#333' },
-                            ticks: { color: '#888', font: { size: 11 } },
-                            min: bwMin,
-                            max: bwMax
-                        }
-                    }
-                }
-            });
-        }
-
-        window.saveCurrentEntry = function() {
-            const entry = {};
-            let focusedId = null;
-            let selectionStart = null;
-            let selectionEnd = null;
-
-            if (document.activeElement && document.activeElement.id) {
-                focusedId = document.activeElement.id;
-                if (typeof document.activeElement.selectionStart === 'number') {
-                    selectionStart = document.activeElement.selectionStart;
-                    selectionEnd = document.activeElement.selectionEnd;
-                }
-            }
-
-            Object.keys(fields).forEach(key => {
-                if (key === 'longer_term_plans') return;
-
-                const el = document.getElementById(key);
-                if (el) {
-                    let val;
-                    if (fields[key] && fields[key].type === 'checkbox') {
-                        val = el.checked;
-                        if (val) entry[key] = true;
-                    } else if (fields[key] && fields[key].type === 'number') {
-                        val = el.value.trim();
-                        if (val !== '') {
-                            if (fields[key].isWeight) {
-                                val = toStorageWeight(val);
-                            } else {
-                                val = parseFloat(val);
-                            }
-                        } else {
-                            val = undefined;
-                        }
-                        if (val !== '' && val !== undefined && (typeof val !== 'number' || !isNaN(val))) {
-                            entry[key] = val;
-                        }
-                    } else {
-                        val = el.value;
-                        if (val !== '' && val !== undefined) {
-                            entry[key] = val;
-                        }
-                    }
-                }
-            });
-
-            const longerEl = document.getElementById('longer_term_plans');
-            if (longerEl) {
-                journalData.longer_term_plans = longerEl.value;
-            }
-
-            journalData[currentDateKey] = entry;
-            saveData();
-            renderSidebar();
-            renderForm();
-
-            if (focusedId) {
-                const elToFocus = document.getElementById(focusedId);
-                if (elToFocus) {
-                    elToFocus.focus();
-                    if (typeof elToFocus.selectionStart !== 'undefined' && selectionStart !== null) {
-                        const len = elToFocus.value.length;
-                        const start = Math.min(selectionStart, len);
-                        const end = Math.min(selectionEnd, len);
-                        elToFocus.setSelectionRange(start, end);
+            },
+            scales: {
+                x: {
+                    grid: { color: '#333' },
+                    ticks: {
+                        color: '#888',
+                        font: { size: 11 }
                     }
                 }
             }
         };
 
-        let autoSaveTimeout;
-        function setupAutoSave() {
-            document.addEventListener('input', (e) => {
-                const id = e.target.id;
-                if (!id || !fields[id]) return;
-                const el = e.target;
-                if (id === 'longer_term_plans') {
-                    autoResizeTextarea(el);
-                }
-                if (id === 'longer_term_plans') {
-                    journalData.longer_term_plans = el.value;
-                    clearTimeout(autoSaveTimeout);
-                    autoSaveTimeout = setTimeout(() => {
-                        saveData();
-                    }, 120);
-                    return;
-                }
-                if (!journalData[currentDateKey]) {
-                    journalData[currentDateKey] = {};
-                }
-                if (fields[id].type === 'checkbox') {
-                    if (el.checked) {
-                        journalData[currentDateKey][id] = true;
+        function upsertChart(instanceRef, canvasId, config) {
+            const canvas = document.getElementById(canvasId);
+
+            if (!canvas) return null;
+
+            if (instanceRef && instanceRef.canvas === canvas) {
+                instanceRef.data.labels = config.data.labels;
+
+                config.data.datasets.forEach((ds, i) => {
+                    if (instanceRef.data.datasets[i]) {
+                        instanceRef.data.datasets[i].data = ds.data;
+                        instanceRef.data.datasets[i].label = ds.label;
                     } else {
-                        delete journalData[currentDateKey][id];
+                        instanceRef.data.datasets.push(ds);
                     }
-                } else {
-                    let val = el.value.trim();
-                    if (fields[id].type === 'number') {
-                        if (val === '') {
-                            val = undefined;
-                        } else if (fields[id].isWeight) {
+                });
+
+                instanceRef.data.datasets.length = config.data.datasets.length;
+
+                if (config.options?.scales?.y) {
+                    instanceRef.options.scales.y = config.options.scales.y;
+                }
+
+                instanceRef.update();
+
+                return instanceRef;
+            } else {
+                if (instanceRef) instanceRef.destroy();
+                return new Chart(canvas, config);
+            }
+        }
+
+        workChartInstance = upsertChart(workChartInstance, 'workChart', {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Exercise (kg-reps)',
+                    data: totalWorks,
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    tension: 0.3,
+                    pointRadius: 2.5,
+                    pointHoverRadius: 5
+                }]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    ...commonOptions.scales,
+                    y: {
+                        grid: { color: '#333' },
+                        ticks: {
+                            color: '#888',
+                            font: { size: 11 }
+                        },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        caloriesChartInstance = upsertChart(caloriesChartInstance, 'caloriesChart', {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Caloric Intake',
+                    data: totalCalories,
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    tension: 0.3,
+                    pointRadius: 2.5,
+                    pointHoverRadius: 5
+                }]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    ...commonOptions.scales,
+                    y: {
+                        grid: { color: '#333' },
+                        ticks: {
+                            color: '#888',
+                            font: { size: 11 }
+                        }
+                    }
+                }
+            }
+        });
+
+        alcoholChartInstance = upsertChart(alcoholChartInstance, 'alcoholChart', {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Servings of Alcohol',
+                    data: alcoholServings,
+                    borderColor: '#a855f7',
+                    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                    tension: 0.3,
+                    pointRadius: 2.5,
+                    pointHoverRadius: 5
+                }]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    ...commonOptions.scales,
+                    y: {
+                        grid: { color: '#333' },
+                        ticks: {
+                            color: '#888',
+                            font: { size: 11 }
+                        },
+                        beginAtZero: true,
+                        suggestedMax: 6
+                    }
+                }
+            }
+        });
+
+        const bwLabel = useLbs ? 'Body Weight (lbs)' : 'Body Weight (kg)';
+        const bwMin = useLbs ? 110 : 50;
+        const bwMax = useLbs ? 176 : 80;
+
+        bodyWeightChartInstance = upsertChart(bodyWeightChartInstance, 'bodyWeightChart', {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: bwLabel,
+                        data: bodyWeights,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.3,
+                        pointRadius: 2.5,
+                        pointHoverRadius: 5
+                    },
+                    {
+                        label: 'Ideal',
+                        data: dates.map(() => idealWeight),
+                        borderColor: '#3b82f6',
+                        borderDash: [6, 4],
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        fill: false,
+                        tension: 0
+                    }
+                ]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    ...commonOptions.scales,
+                    y: {
+                        grid: { color: '#333' },
+                        ticks: {
+                            color: '#888',
+                            font: { size: 11 }
+                        },
+                        min: bwMin,
+                        max: bwMax
+                    }
+                }
+            }
+        });
+    }
+
+    window.saveCurrentEntry = function() {
+        const entry = {};
+        let focusedId = null;
+        let selectionStart = null;
+        let selectionEnd = null;
+
+        if (document.activeElement && document.activeElement.id) {
+            focusedId = document.activeElement.id;
+
+            if (typeof document.activeElement.selectionStart === 'number') {
+                selectionStart = document.activeElement.selectionStart;
+                selectionEnd = document.activeElement.selectionEnd;
+            }
+        }
+
+        Object.keys(fields).forEach(key => {
+            if (key === 'longer_term_plans') return;
+
+            const el = document.getElementById(key);
+
+            if (el) {
+                let val;
+
+                if (fields[key] && fields[key].type === 'checkbox') {
+                    val = el.checked;
+
+                    if (val) entry[key] = true;
+                } else if (fields[key] && fields[key].type === 'number') {
+                    val = el.value.trim();
+
+                    if (val !== '') {
+                        if (fields[key].isWeight) {
                             val = toStorageWeight(val);
                         } else {
                             val = parseFloat(val);
-                            if (isNaN(val)) return;
                         }
                     } else {
-                        val = el.value;
+                        val = undefined;
                     }
-                    if (val === '' || val === undefined) {
-                        delete journalData[currentDateKey][id];
-                    } else {
-                        journalData[currentDateKey][id] = val;
+
+                    if (val !== '' && val !== undefined && (typeof val !== 'number' || !isNaN(val))) {
+                        entry[key] = val;
+                    }
+                } else {
+                    val = el.value;
+
+                    if (val !== '' && val !== undefined) {
+                        entry[key] = val;
                     }
                 }
+            }
+        });
+
+        const longerEl = document.getElementById('longer_term_plans');
+
+        if (longerEl) {
+            journalData.longer_term_plans = longerEl.value;
+        }
+
+        journalData[currentDateKey] = entry;
+
+        saveData();
+        renderSidebar();
+        renderForm();
+
+        if (focusedId) {
+            const elToFocus = document.getElementById(focusedId);
+
+            if (elToFocus) {
+                elToFocus.focus();
+
+                if (typeof elToFocus.selectionStart !== 'undefined' && selectionStart !== null) {
+                    const len = elToFocus.value.length;
+                    const start = Math.min(selectionStart, len);
+                    const end = Math.min(selectionEnd, len);
+                    elToFocus.setSelectionRange(start, end);
+                }
+            }
+        }
+    };
+
+    let autoSaveTimeout;
+
+    function setupAutoSave() {
+        document.addEventListener('input', (e) => {
+            const id = e.target.id;
+
+            if (!id || !fields[id]) return;
+
+            const el = e.target;
+
+            if (id === 'longer_term_plans') {
+                autoResizeTextarea(el);
+            }
+
+            if (id === 'longer_term_plans') {
+                journalData.longer_term_plans = el.value;
+
                 clearTimeout(autoSaveTimeout);
+
                 autoSaveTimeout = setTimeout(() => {
                     saveData();
-                    renderCharts(false);
-                    renderSidebar();
                 }, 120);
-            });
 
-            document.addEventListener('change', (e) => {
-                const id = e.target.id;
-                if (!id || !fields[id] || fields[id].type !== 'checkbox') return;
-                if (!journalData[currentDateKey]) {
-                    journalData[currentDateKey] = {};
-                }
-                if (e.target.checked) {
+                return;
+            }
+
+            if (!journalData[currentDateKey]) {
+                journalData[currentDateKey] = {};
+            }
+
+            if (fields[id].type === 'checkbox') {
+                if (el.checked) {
                     journalData[currentDateKey][id] = true;
                 } else {
                     delete journalData[currentDateKey][id];
                 }
-                clearTimeout(autoSaveTimeout);
-                autoSaveTimeout = setTimeout(() => {
-                    saveData();
-                    renderCharts(false);
-                    renderSidebar();
-                }, 120);
-            });
-        }
+            } else {
+                let val = el.value.trim();
 
-        // ========== Mobile menu helpers ==========
-        function openMobileMenu() {
-            document.getElementById('sidebar').classList.add('open');
-            document.getElementById('menuOverlay').classList.add('open');
-        }
+                if (fields[id].type === 'number') {
+                    if (val === '') {
+                        val = undefined;
+                    } else if (fields[id].isWeight) {
+                        val = toStorageWeight(val);
+                    } else {
+                        val = parseFloat(val);
 
-        function closeMobileMenu() {
-            document.getElementById('sidebar').classList.remove('open');
-            document.getElementById('menuOverlay').classList.remove('open');
-        }
-
-        // ========== Copy / Import helpers ==========
-        async function copyToClipboard(text, successMsg) {
-            try {
-                await navigator.clipboard.writeText(text);
-                showToast(successMsg || 'Copied to clipboard');
-            } catch (err) {
-                const ta = document.createElement('textarea');
-                ta.value = text;
-                ta.style.position = 'fixed';
-                ta.style.left = '-9999px';
-                document.body.appendChild(ta);
-                ta.select();
-                try {
-                    document.execCommand('copy');
-                    showToast(successMsg || 'Copied to clipboard');
-                } catch (e2) {
-                    prompt('Copy this:', text);
-                }
-                document.body.removeChild(ta);
-            }
-        }
-
-        function exportAll() {
-            const dataStr = JSON.stringify(journalData, null, 2);
-            copyToClipboard(dataStr, 'All data copied');
-        }
-
-        function exportToday() {
-            const todayKey = formatDateKey(new Date());
-            const todayData = {};
-            if (journalData[todayKey]) {
-                todayData[todayKey] = journalData[todayKey];
-            }
-            if (typeof journalData.longer_term_plans !== 'undefined') {
-                todayData.longer_term_plans = journalData.longer_term_plans;
-            }
-            if (Object.keys(todayData).length === 0) {
-                showToast('Nothing to copy for today', true);
-                return;
-            }
-            const dataStr = JSON.stringify(todayData, null, 2);
-            copyToClipboard(dataStr, "Today's data copied");
-        }
-
-        function setupMenu() {
-            const sidebarHamburger = document.getElementById('sidebarHamburger');
-            const headerHamburger = document.getElementById('headerHamburger');
-            const overlay = document.getElementById('menuOverlay');
-            const dropdown = document.getElementById('menuDropdown');
-            const unitBtn = document.getElementById('unitToggleBtn');
-            const unitLabel = document.getElementById('unitToggleLabel');
-            const unitBtnMobile = document.getElementById('unitToggleBtnMobile');
-            const unitLabelMobile = document.getElementById('unitToggleLabelMobile');
-            const exportAllBtn = document.getElementById('exportAllBtn');
-            const exportTodayBtn = document.getElementById('exportTodayBtn');
-            const importBtn = document.getElementById('importBtn');
-            const exportAllBtnMobile = document.getElementById('exportAllBtnMobile');
-            const exportTodayBtnMobile = document.getElementById('exportTodayBtnMobile');
-            const importBtnMobile = document.getElementById('importBtnMobile');
-            const importFile = document.getElementById('importFile');
-
-            function syncUnitLabels() {
-                const label = useLbs ? 'Lbs' : 'Kg';
-                unitLabel.textContent = label;
-                unitLabelMobile.textContent = label;
-            }
-            syncUnitLabels();
-
-            // Desktop: sidebar hamburger toggles dropdown
-            sidebarHamburger.addEventListener('click', (e) => {
-                e.stopPropagation();
-                dropdown.classList.toggle('open');
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!dropdown.contains(e.target) && e.target !== sidebarHamburger && !sidebarHamburger.contains(e.target)) {
-                    dropdown.classList.remove('open');
-                }
-            });
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    document.getElementById('menuDropdown').classList.remove('open');
-                    closeMobileMenu();
-                }
-            });
-
-            // Mobile: header hamburger opens slide-out sidebar
-            headerHamburger.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const sidebar = document.getElementById('sidebar');
-                if (sidebar.classList.contains('open')) {
-                    closeMobileMenu();
-                } else {
-                    openMobileMenu();
-                }
-            });
-            overlay.addEventListener('click', closeMobileMenu);
-
-            function toggleUnits() {
-                useLbs = !useLbs;
-                syncUnitLabels();
-                saveData();
-                renderForm();
-                dropdown.classList.remove('open');
-            }
-
-            unitBtn.addEventListener('click', toggleUnits);
-            unitBtnMobile.addEventListener('click', () => {
-                toggleUnits();
-                closeMobileMenu();
-            });
-
-            exportAllBtn.addEventListener('click', () => {
-                exportAll();
-                dropdown.classList.remove('open');
-            });
-            exportAllBtnMobile.addEventListener('click', () => {
-                exportAll();
-                closeMobileMenu();
-            });
-
-            exportTodayBtn.addEventListener('click', () => {
-                exportToday();
-                dropdown.classList.remove('open');
-            });
-            exportTodayBtnMobile.addEventListener('click', () => {
-                exportToday();
-                closeMobileMenu();
-            });
-
-            importBtn.addEventListener('click', () => {
-                importFile.click();
-                dropdown.classList.remove('open');
-            });
-            importBtnMobile.addEventListener('click', () => {
-                importFile.click();
-                closeMobileMenu();
-            });
-
-            // Safe import – never overwrite existing non-empty values with blanks
-            importFile.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    try {
-                        const imported = JSON.parse(ev.target.result);
-                        if (typeof imported !== 'object' || imported === null || Array.isArray(imported)) {
-                            showToast('Invalid journal data file', true);
-                            return;
-                        }
-                        if (!confirm('Import will merge with existing data. Continue?')) {
-                            importFile.value = '';
-                            return;
-                        }
-
-                        // Fields that should be concatenated on Merge (text / textarea)
-                        const TEXT_FIELDS = new Set([
-                            'breakfast', 'lunch', 'dinner',
-                            'what_did_you_do', 'what_did_you_accomplish', 'work',
-                            'for_you_fam', 'high_point', 'plan_tomorrow', 'longer_term_plans',
-                            'plank_time', 'inverted_plank_time', 'elliptical_bike_time'
-                        ]);
-
-                        // Detect conflicts: existing non-empty value vs incoming non-empty value
-                        let hasConflict = false;
-                        for (const [key, value] of Object.entries(imported)) {
-                            if (key === 'longer_term_plans') {
-                                if (typeof value === 'string' && value.trim() !== '' &&
-                                    journalData.longer_term_plans && journalData.longer_term_plans.trim() !== '' &&
-                                    journalData.longer_term_plans !== value) {
-                                    hasConflict = true;
-                                    break;
-                                }
-                                continue;
-                            }
-                            if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
-                            if (typeof value !== 'object' || value === null || Array.isArray(value)) continue;
-
-                            const existing = journalData[key] || {};
-                            for (const [field, fieldVal] of Object.entries(value)) {
-                                if (fieldVal === undefined || fieldVal === null) continue;
-                                if (typeof fieldVal === 'string' && fieldVal.trim() === '') continue;
-
-                                const prev = existing[field];
-                                if (prev === undefined || prev === null) continue;
-                                if (typeof prev === 'string' && prev.trim() === '') continue;
-                                if (prev === fieldVal) continue;
-
-                                hasConflict = true;
-                                break;
-                            }
-                            if (hasConflict) break;
-                        }
-
-                        let mode = 'overwrite'; // default when no conflict
-                        if (hasConflict) {
-                            const choice = confirm(
-                                'Some fields already have data.\n\n' +
-                                'OK = Merge (append new text after existing; numbers take the new value)\n' +
-                                'Cancel = Overwrite (replace with imported values)'
-                            );
-                            mode = choice ? 'merge' : 'overwrite';
-                        }
-
-                        let fieldsAddedOrUpdated = 0;
-
-                        for (const [key, value] of Object.entries(imported)) {
-                            if (key === 'longer_term_plans') {
-                                if (typeof value === 'string' && value.trim() !== '') {
-                                    const prev = journalData.longer_term_plans || '';
-                                    if (prev.trim() === '') {
-                                        journalData.longer_term_plans = value;
-                                        fieldsAddedOrUpdated++;
-                                    } else if (prev !== value) {
-                                        if (mode === 'merge') {
-                                            const trimmed = prev.replace(/\s+$/, '');
-                                            const needsPeriod = trimmed.length > 0 && !/[.!?…]$/.test(trimmed);
-                                            journalData.longer_term_plans = trimmed + (needsPeriod ? '.' : '') + ' ' + value;
-                                        } else {
-                                            journalData.longer_term_plans = value;
-                                        }
-                                        fieldsAddedOrUpdated++;
-                                    }
-                                }
-                                continue;
-                            }
-
-                            if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
-                            if (typeof value !== 'object' || value === null || Array.isArray(value)) continue;
-
-                            if (!journalData[key]) journalData[key] = {};
-
-                            for (const [field, fieldVal] of Object.entries(value)) {
-                                if (fieldVal === undefined || fieldVal === null) continue;
-                                if (typeof fieldVal === 'string' && fieldVal.trim() === '') continue;
-
-                                const prev = journalData[key][field];
-                                const prevEmpty = prev === undefined || prev === null ||
-                                    (typeof prev === 'string' && prev.trim() === '');
-
-                                if (prevEmpty) {
-                                    journalData[key][field] = fieldVal;
-                                    fieldsAddedOrUpdated++;
-                                } else if (prev === fieldVal) {
-                                    // identical – skip
-                                } else if (mode === 'overwrite') {
-                                    journalData[key][field] = fieldVal;
-                                    fieldsAddedOrUpdated++;
-                                } else {
-                                    // merge
-                                    if (TEXT_FIELDS.has(field) && typeof prev === 'string') {
-                                        const trimmed = prev.replace(/\s+$/, '');
-                                        const needsPeriod = trimmed.length > 0 && !/[.!?…]$/.test(trimmed);
-                                        journalData[key][field] = trimmed + (needsPeriod ? '.' : '') + ' ' + fieldVal;
-                                    } else {
-                                        // numeric / checkbox / etc. → take the new value
-                                        journalData[key][field] = fieldVal;
-                                    }
-                                    fieldsAddedOrUpdated++;
-                                }
-                            }
-                        }
-
-                        if (typeof journalData.longer_term_plans === 'undefined') {
-                            journalData.longer_term_plans = '';
-                        }
-
-                        saveData();
-                        renderSidebar(true);
-                        renderForm();
-                        showToast(`Import OK · ${fieldsAddedOrUpdated} fields updated (${mode})`);
-                    } catch (err) {
-                        showToast('Failed to parse JSON file', true);
+                        if (isNaN(val)) return;
                     }
-                    importFile.value = '';
-                };
-                reader.readAsText(file);
-            });
+                } else {
+                    val = el.value;
+                }
+
+                if (val === '' || val === undefined) {
+                    delete journalData[currentDateKey][id];
+                } else {
+                    journalData[currentDateKey][id] = val;
+                }
+            }
+
+            clearTimeout(autoSaveTimeout);
+
+            autoSaveTimeout = setTimeout(() => {
+                saveData();
+                renderCharts(false);
+                renderSidebar();
+            }, 120);
+        });
+
+        document.addEventListener('change', (e) => {
+            const id = e.target.id;
+
+            if (!id || !fields[id] || fields[id].type !== 'checkbox') return;
+
+            if (!journalData[currentDateKey]) {
+                journalData[currentDateKey] = {};
+            }
+
+            if (e.target.checked) {
+                journalData[currentDateKey][id] = true;
+            } else {
+                delete journalData[currentDateKey][id];
+            }
+
+            clearTimeout(autoSaveTimeout);
+
+            autoSaveTimeout = setTimeout(() => {
+                saveData();
+                renderCharts(false);
+                renderSidebar();
+            }, 120);
+        });
+    }
+
+    /* ========== Mobile menu helpers ========== */
+    function openMobileMenu() {
+        document.getElementById('sidebar').classList.add('open');
+        document.getElementById('menuOverlay').classList.add('open');
+    }
+
+    function closeMobileMenu() {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('menuOverlay').classList.remove('open');
+    }
+
+    /* ========== Clipboard helpers ========== */
+    async function copyToClipboard(text, successMsg) {
+        try {
+            await navigator.clipboard.writeText(text);
+            showToast(successMsg || 'Copied to clipboard');
+        } catch (err) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+
+            try {
+                document.execCommand('copy');
+                showToast(successMsg || 'Copied to clipboard');
+            } catch (e2) {
+                prompt('Copy this:', text);
+            }
+
+            document.body.removeChild(ta);
+        }
+    }
+
+    function exportAll() {
+        const dataStr = JSON.stringify(journalData, null, 2);
+        copyToClipboard(dataStr, 'All data copied');
+    }
+
+    function exportToday() {
+        const todayKey = formatDateKey(new Date());
+        const todayData = {};
+
+        if (journalData[todayKey]) {
+            todayData[todayKey] = journalData[todayKey];
         }
 
-
-function init() {
-    loadData();
-
-    // Make today's displayed defaults actual stored values immediately.
-    ensureEntryDefaults(currentDateKey);
-    saveData();
-
-    renderSidebar(true);
-    renderForm();
-    setupAutoSave();
-    setupMenu();
-
-    document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey && e.key === 's') {
-            e.preventDefault();
-            saveCurrentEntry();
+        if (typeof journalData.longer_term_plans !== 'undefined') {
+            todayData.longer_term_plans = journalData.longer_term_plans;
         }
-    });
-}
 
-window.onload = init;
+        if (Object.keys(todayData).length === 0) {
+            showToast('Nothing to copy for today', true);
+            return;
+        }
 
-    </script>
+        const dataStr = JSON.stringify(todayData, null, 2);
+        copyToClipboard(dataStr, "Today's data copied");
+    }
+
+    function showPasteModal() {
+        return new Promise((resolve) => {
+            const overlay = document.getElementById('pasteModalOverlay');
+            const input = document.getElementById('pasteModalInput');
+            const cancelBtn = document.getElementById('pasteModalCancel');
+            const importBtn = document.getElementById('pasteModalImport');
+
+            input.value = '';
+            overlay.classList.add('open');
+
+            const close = (value) => {
+                overlay.classList.remove('open');
+                document.removeEventListener('keydown', handleKeydown);
+                cancelBtn.onclick = null;
+                importBtn.onclick = null;
+                overlay.onclick = null;
+                resolve(value);
+            };
+
+            const handleKeydown = (e) => {
+                if (e.key === 'Escape') {
+                    close(null);
+                } else if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                    close(input.value);
+                }
+            };
+
+            cancelBtn.onclick = () => close(null);
+            importBtn.onclick = () => close(input.value);
+
+            overlay.onclick = (e) => {
+                if (e.target === overlay) close(null);
+            };
+
+            document.addEventListener('keydown', handleKeydown);
+
+            requestAnimationFrame(() => input.focus());
+        });
+    }
+
+    async function importDataFromClipboard() {
+        const pasted = await showPasteModal();
+
+        if (pasted === null || pasted.trim() === '') {
+            return;
+        }
+
+        let imported;
+
+        try {
+            imported = JSON.parse(pasted);
+        } catch (err) {
+            alert('Import failed: the pasted data is not valid JSON.');
+            return;
+        }
+
+        if (typeof imported !== 'object' || imported === null || Array.isArray(imported)) {
+            alert('Import failed: the pasted data is not valid journal data.');
+            return;
+        }
+
+        const TEXT_FIELDS = new Set([
+            'breakfast',
+            'lunch',
+            'dinner',
+            'what_did_you_do',
+            'what_did_you_accomplish',
+            'work',
+            'for_you_fam',
+            'high_point',
+            'plan_tomorrow',
+            'longer_term_plans',
+            'plank_time',
+            'inverted_plank_time',
+            'elliptical_bike_time'
+        ]);
+
+        const importedDays = [];
+        let conflictCount = 0;
+        let textMergeCount = 0;
+        let valueReplacementCount = 0;
+
+        const incomingLongerTermPlans = imported.longer_term_plans;
+
+        if (typeof incomingLongerTermPlans === 'string' && incomingLongerTermPlans.trim() !== '') {
+            const existingPlans = journalData.longer_term_plans || '';
+
+            if (existingPlans.trim() === '') {
+                journalData.longer_term_plans = incomingLongerTermPlans;
+            } else if (existingPlans !== incomingLongerTermPlans) {
+                conflictCount++;
+
+                const trimmed = existingPlans.replace(/\s+$/, '');
+                const needsPeriod = trimmed.length > 0 && !/[.!?…]$/.test(trimmed);
+
+                journalData.longer_term_plans =
+                    trimmed +
+                    (needsPeriod ? '.' : '') +
+                    ' ' +
+                    incomingLongerTermPlans;
+
+                textMergeCount++;
+            }
+        }
+
+        for (const [key, value] of Object.entries(imported)) {
+            if (key === 'longer_term_plans') continue;
+
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
+
+            if (typeof value !== 'object' || value === null || Array.isArray(value)) continue;
+
+            importedDays.push(key);
+
+            if (!journalData[key]) {
+                journalData[key] = {};
+            }
+
+            const existing = journalData[key];
+
+            for (const [field, fieldVal] of Object.entries(value)) {
+                if (fieldVal === undefined || fieldVal === null) continue;
+                if (typeof fieldVal === 'string' && fieldVal.trim() === '') continue;
+
+                const prev = existing[field];
+
+                const prevEmpty =
+                    prev === undefined ||
+                    prev === null ||
+                    (typeof prev === 'string' && prev.trim() === '');
+
+                if (prevEmpty) {
+                    existing[field] = fieldVal;
+                    continue;
+                }
+
+                if (prev === fieldVal) {
+                    continue;
+                }
+
+                conflictCount++;
+
+                if (TEXT_FIELDS.has(field) && typeof prev === 'string' && typeof fieldVal === 'string') {
+                    const trimmed = prev.replace(/\s+$/, '');
+                    const needsPeriod = trimmed.length > 0 && !/[.!?…]$/.test(trimmed);
+
+                    existing[field] =
+                        trimmed +
+                        (needsPeriod ? '.' : '') +
+                        ' ' +
+                        fieldVal;
+
+                    textMergeCount++;
+                } else {
+                    existing[field] = fieldVal;
+                    valueReplacementCount++;
+                }
+            }
+        }
+
+        saveData();
+        renderSidebar(true);
+        renderForm();
+
+        importedDays.sort();
+
+        const dayList = importedDays.length
+            ? importedDays.map(formatDisplayDate).join(', ')
+            : 'None';
+
+        let conflictSummary;
+
+        if (conflictCount === 0) {
+            conflictSummary = 'No conflicts.';
+        } else {
+            conflictSummary =
+                `${conflictCount} conflict${conflictCount === 1 ? '' : 's'} resolved automatically:\n` +
+                `• Text was appended to existing text: ${textMergeCount}\n` +
+                `• Other conflicting values were replaced with the imported value: ${valueReplacementCount}`;
+        }
+
+        alert(
+            `Import complete.\n\n` +
+            `Days imported: ${importedDays.length}\n` +
+            `${dayList}\n\n` +
+            `Conflicts: ${conflictSummary}`
+        );
+    }
+
+    function setupMenu() {
+        const sidebarHamburger = document.getElementById('sidebarHamburger');
+        const headerHamburger = document.getElementById('headerHamburger');
+        const overlay = document.getElementById('menuOverlay');
+        const dropdown = document.getElementById('menuDropdown');
+
+        const unitBtn = document.getElementById('unitToggleBtn');
+        const unitLabel = document.getElementById('unitToggleLabel');
+
+        const unitBtnMobile = document.getElementById('unitToggleBtnMobile');
+        const unitLabelMobile = document.getElementById('unitToggleLabelMobile');
+
+        const exportAllBtn = document.getElementById('exportAllBtn');
+        const exportTodayBtn = document.getElementById('exportTodayBtn');
+        const importBtn = document.getElementById('importBtn');
+
+        const exportAllBtnMobile = document.getElementById('exportAllBtnMobile');
+        const exportTodayBtnMobile = document.getElementById('exportTodayBtnMobile');
+        const importBtnMobile = document.getElementById('importBtnMobile');
+
+        function syncUnitLabels() {
+            const label = useLbs ? 'Lbs' : 'Kg';
+
+            unitLabel.textContent = label;
+            unitLabelMobile.textContent = label;
+        }
+
+        syncUnitLabels();
+
+        // Desktop: sidebar hamburger toggles dropdown
+        sidebarHamburger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('open');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (
+                !dropdown.contains(e.target) &&
+                e.target !== sidebarHamburger &&
+                !sidebarHamburger.contains(e.target)
+            ) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                dropdown.classList.remove('open');
+                closeMobileMenu();
+            }
+        });
+
+        // Mobile: header hamburger opens slide-out sidebar
+        headerHamburger.addEventListener('click', (e) => {
+            e.stopPropagation();
+
+            const sidebar = document.getElementById('sidebar');
+
+            if (sidebar.classList.contains('open')) {
+                closeMobileMenu();
+            } else {
+                openMobileMenu();
+            }
+        });
+
+        overlay.addEventListener('click', closeMobileMenu);
+
+        function toggleUnits() {
+            useLbs = !useLbs;
+            syncUnitLabels();
+            saveData();
+            renderForm();
+            dropdown.classList.remove('open');
+        }
+
+        unitBtn.addEventListener('click', toggleUnits);
+
+        unitBtnMobile.addEventListener('click', () => {
+            toggleUnits();
+            closeMobileMenu();
+        });
+
+        exportAllBtn.addEventListener('click', () => {
+            exportAll();
+            dropdown.classList.remove('open');
+        });
+
+        exportAllBtnMobile.addEventListener('click', () => {
+            exportAll();
+            closeMobileMenu();
+        });
+
+        exportTodayBtn.addEventListener('click', () => {
+            exportToday();
+            dropdown.classList.remove('open');
+        });
+
+        exportTodayBtnMobile.addEventListener('click', () => {
+            exportToday();
+            closeMobileMenu();
+        });
+
+        importBtn.addEventListener('click', () => {
+            importDataFromClipboard();
+            dropdown.classList.remove('open');
+        });
+
+        importBtnMobile.addEventListener('click', () => {
+            importDataFromClipboard();
+            closeMobileMenu();
+        });
+    }
+
+    function init() {
+        loadData();
+
+        // Make today's displayed defaults actual stored values immediately.
+        ensureEntryDefaults(currentDateKey);
+        saveData();
+
+        renderSidebar(true);
+        renderForm();
+        setupAutoSave();
+        setupMenu();
+
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveCurrentEntry();
+            }
+        });
+    }
+
+    window.onload = init;
+</script>
 </body>
 </html>
