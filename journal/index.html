@@ -772,15 +772,15 @@
         curls_reps: 8,
         tricep_curls_weight: 20,
         tricep_curls_reps: 10,
-        chest_flies_weight: 10,
+        chest_flies_weight: 12.5,
         chest_flies_reps: 10,
-        chest_presses_weight: 10,
+        chest_presses_weight: 12.5,
         chest_presses_reps: 10,
         pushups_standard_reps: 15,
         pushups_tricep_reps: 0,
         crunches_reps: 100,
         crossing_crunches_reps: 50,
-        inclined_situps_reps: 10,
+        inclined_situps_reps: 15,
         leg_lifts_reps: 25,
         scissor_kicks_reps: 30,
         butterfly_kicks_reps: 100,
@@ -1915,7 +1915,8 @@
             const handleKeydown = (e) => {
                 if (e.key === 'Escape') {
                     close(null);
-                } else if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
                     close(input.value);
                 }
             };
@@ -1929,10 +1930,11 @@
 
             document.addEventListener('keydown', handleKeydown);
 
-            /* Automatically focus the import textbox when the modal opens. */
-            requestAnimationFrame(() => {
+            /* Put the cursor directly in the import textbox when the modal opens. */
+            setTimeout(() => {
                 input.focus();
-            });
+                input.setSelectionRange(input.value.length, input.value.length);
+            }, 50);
         });
     }
 
