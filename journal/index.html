@@ -684,7 +684,7 @@
                     <span>Units</span>
                     <span class="toggle-label" id="unitToggleLabel">Kg</span>
                 </button>
-                <button class="menu-item" id="exportTodayBtn">Copy Today</button>
+                <button class="menu-item" id="exportTodayBtn">Copy Current Entry</button>
                 <button class="menu-item" id="exportAllBtn">Copy All</button>
                 <button class="menu-item" id="importBtn">Import Data</button>
             </div>
@@ -696,7 +696,7 @@
                 <span>Units</span>
                 <span class="toggle-label" id="unitToggleLabelMobile">Kg</span>
             </button>
-            <button class="menu-item" id="exportTodayBtnMobile">Copy Today</button>
+            <button class="menu-item" id="exportTodayBtnMobile">Copy Current Entry</button>
             <button class="menu-item" id="exportAllBtnMobile">Copy All</button>
             <button class="menu-item" id="importBtnMobile">Import Data</button>
         </div>
@@ -1872,26 +1872,25 @@
         copyToClipboard(dataStr, 'All data copied');
     }
 
-    function exportToday() {
-        const todayKey = formatDateKey(new Date());
-        const todayData = {};
+    function exportCurrentEntry() {
+    const currentData = {};
 
-        if (journalData[todayKey]) {
-            todayData[todayKey] = journalData[todayKey];
-        }
-
-        if (typeof journalData.longer_term_plans !== 'undefined') {
-            todayData.longer_term_plans = journalData.longer_term_plans;
-        }
-
-        if (Object.keys(todayData).length === 0) {
-            showToast('Nothing to copy for today', true);
-            return;
-        }
-
-        const dataStr = JSON.stringify(todayData, null, 2);
-        copyToClipboard(dataStr, "Today's data copied");
+    if (journalData[currentDateKey]) {
+        currentData[currentDateKey] = journalData[currentDateKey];
     }
+
+    if (typeof journalData.longer_term_plans !== 'undefined') {
+        currentData.longer_term_plans = journalData.longer_term_plans;
+    }
+
+    if (Object.keys(currentData).length === 0) {
+        showToast('Nothing to copy for this entry', true);
+        return;
+    }
+
+    const dataStr = JSON.stringify(currentData, null, 2);
+    copyToClipboard(dataStr, 'Current entry copied');
+}
 
     function showPasteModal() {
         return new Promise((resolve) => {
@@ -2163,12 +2162,12 @@
         });
 
         exportTodayBtn.addEventListener('click', () => {
-            exportToday();
+            exportCurrentEntry();
             dropdown.classList.remove('open');
         });
 
         exportTodayBtnMobile.addEventListener('click', () => {
-            exportToday();
+            exportCurrentEntry();
             closeMobileMenu();
         });
 
