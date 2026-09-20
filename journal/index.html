@@ -1018,7 +1018,7 @@
                     saveData();
 
                     renderForm();
-                    renderSidebar(false);
+                    renderSidebar(true);
                     closeMobileMenu();
                 });
             }
@@ -1031,14 +1031,29 @@
 
         if (initialLoad) {
             setTimeout(() => {
-                const currentItem = dateList.querySelector('.current');
+                const currentItem = dateList.querySelector('.date-item.current');
 
                 if (currentItem) {
-                    const index = Array.from(dateList.children).indexOf(currentItem);
-                    dateList.scrollTop = Math.max(0, index * 48 - 700);
+                    const targetPosition = dateList.clientHeight * 0.45;
+                    dateList.scrollTop =
+                        currentItem.offsetTop - targetPosition + currentItem.offsetHeight / 2;
                 }
             }, 100);
         }
+
+        // if (initialLoad) {
+        //     setTimeout(() => {
+        //         const currentItem = dateList.querySelector('.date-item.current');
+
+        //         if (currentItem) {
+        //             currentItem.scrollIntoView({
+        //                 block: 'center',
+        //                 inline: 'nearest',
+        //                 behavior: 'instant'
+        //             });
+        //         }
+        //     }, 100);
+        // }
     }
 
     function getEntryStatus(entry) {
