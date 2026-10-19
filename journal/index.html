@@ -982,79 +982,87 @@
         }
     }
 
-    function renderSidebar(initialLoad = false) {
-        const dateList = document.getElementById('dateList');
-        dateList.innerHTML = '';
+    
+function renderSidebar(initialLoad = false) {
+    const dateList = document.getElementById('dateList');
+    dateList.innerHTML = '';
 
-        const today = new Date();
-        const oldestDate = new Date(2026, 6, 22);
-        let currentGenDate = new Date(oldestDate);
-        const maxDays = 90;
-        let items = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-        for (let i = 0; i < maxDays; i++) {
-            const dateKey = formatDateKey(currentGenDate);
-            const display = formatDisplayDate(dateKey);
-            const isFuture = currentGenDate > today;
-            const entry = journalData[dateKey] || {};
-            const status = getEntryStatus(entry);
+    const oldestDate = new Date(2026, 6, 22);
+    const futureDays = 10;
 
-            const item = document.createElement('div');
-            item.className = `date-item ${status}`;
+    // Always generate dates through 10 days after today,
+    // while preserving the journal's original starting date.
+    const lastDate = new Date(today);
+    lastDate.setDate(lastDate.getDate() + futureDays);
 
-            if (dateKey === currentDateKey) item.classList.add('current');
-            if (isFuture) item.classList.add('future');
+    const totalDays = Math.max(
+        0,
+        Math.round((lastDate - oldestDate) / (1000 * 60 * 60 * 24)) + 1
+    );
 
-            item.innerHTML = `
-                <span>${display}</span>
-                <span style="font-size: 12px; color: #666;">${dateKey}</span>
-            `;
+    let currentGenDate = new Date(oldestDate);
+    let items = [];
 
-            if (!isFuture) {
-                item.addEventListener('click', () => {
-                    currentDateKey = dateKey;
+    for (let i = 0; i < totalDays; i++) {
+        const dateKey = formatDateKey(currentGenDate);
+        const display = formatDisplayDate(dateKey);
+        const isFuture = currentGenDate > today;
+        const entry = journalData[dateKey] || {};
+        const status = getEntryStatus(entry);
 
-                    ensureEntryDefaults(currentDateKey);
-                    saveData();
+        const item = document.createElement('div');
+        item.className = `date-item ${status}`;
 
-                    renderForm();
-                    renderSidebar(true);
-                    closeMobileMenu();
-                });
-            }
-
-            items.push(item);
-            currentGenDate.setDate(currentGenDate.getDate() + 1);
+        if (dateKey === currentDateKey) {
+            item.classList.add('current');
         }
 
-        items.forEach(item => dateList.appendChild(item));
-
-        if (initialLoad) {
-            setTimeout(() => {
-                const currentItem = dateList.querySelector('.date-item.current');
-
-                if (currentItem) {
-                    const targetPosition = dateList.clientHeight * 0.45;
-                    dateList.scrollTop =
-                        currentItem.offsetTop - targetPosition + currentItem.offsetHeight / 2;
-                }
-            }, 100);
+        if (isFuture) {
+            item.classList.add('future');
+            item.setAttribute('aria-disabled', 'true');
         }
 
-        // if (initialLoad) {
-        //     setTimeout(() => {
-        //         const currentItem = dateList.querySelector('.date-item.current');
+        item.innerHTML = `
+            <span>${display}</span>
+            <span style="font-size: 12px; color: #666;">${dateKey}</span>
+        `;
 
-        //         if (currentItem) {
-        //             currentItem.scrollIntoView({
-        //                 block: 'center',
-        //                 inline: 'nearest',
-        //                 behavior: 'instant'
-        //             });
-        //         }
-        //     }, 100);
-        // }
+        if (!isFuture) {
+            item.addEventListener('click', () => {
+                currentDateKey = dateKey;
+
+                ensureEntryDefaults(currentDateKey);
+                saveData();
+
+                renderForm();
+                renderSidebar(true);
+                closeMobileMenu();
+            });
+        }
+
+        items.push(item);
+        currentGenDate.setDate(currentGenDate.getDate() + 1);
     }
+
+    items.forEach(item => dateList.appendChild(item));
+
+    if (initialLoad) {
+        setTimeout(() => {
+            const currentItem = dateList.querySelector('.date-item.current');
+
+            if (currentItem) {
+                const targetPosition = dateList.clientHeight * 0.45;
+                dateList.scrollTop =
+                    currentItem.offsetTop - targetPosition +
+                    currentItem.offsetHeight / 2;
+            }
+        }, 100);
+    }
+}
+
 
     function getEntryStatus(entry) {
         if (!entry || Object.keys(entry).length === 0) return 'empty';
